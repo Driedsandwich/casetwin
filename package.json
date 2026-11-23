@@ -1,0 +1,29 @@
+{
+  "name": "casetwin-app",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "license": "Apache-2.0",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "build": "node scripts/check-policy.js && vite build && node scripts/check-chunks.js",
+    "test": "node --test tests/*.test.js && node prototype/verify.cjs",
+    "mcp": "node mcp/server.js",
+    "preview": "vite preview --host 127.0.0.1"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.25.0",
+    "firebase": "13.4.0",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "jsdom": "^31.0.1",
+    "vite": "^7.2.0"
+  },
+  "overrides": {
+    "@grpc/grpc-js": "^1.14.0"
+  },
+  "engines": {
+    "node": ">=26"
+  }
+}

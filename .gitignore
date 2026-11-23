@@ -11,3 +11,7 @@ public/*debug*.js
 mcp/private/
 *.log
 files/
+.firebaserc
+public/firebase-config.*.local.js
+mcp/bundles/
+coverage/

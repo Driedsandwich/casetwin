@@ -1,0 +1,17 @@
+# CaseTwin
+
+CaseTwin converts a private CSV import failure into a deterministic fictional reproduction.
+Read README.md for setup and limits and DESIGN.md for the C3 interface specification.
+
+## Agent interface
+- Run: node mcp/server.js --demo (fictional approved fixture)
+- Real local export: CASETWIN_BUNDLE_PATH=/absolute/path/to/casetwin-share-bundle.json node mcp/server.js
+- Transport: MCP stdio. No inference in the MCP server.
+- prepare_repro: return the path of a locally exported approved bundle only.
+- get_repro: return only the approved fictional CSV (UTF-8 or Base64).
+- get_validation_report: return fingerprint and sanitized check results only.
+
+Never request or expose customer CSVs, original filenames, original cell values, original row numbers, raw logs or local AI notes. The tools cannot approve a bundle or create a repro from customer data. Approval is a local user action in the web app. Files must come from a trusted local export directory. Do not send a bundle to other systems without user instruction.
+
+## Inference boundary
+The executable policy table is src/inference-policy.js. Private summaries use ONLY_ON_DEVICE. Drafts use ONLY_IN_CLOUD with fictional repro and static importer code. Rewrites use PREFER_ON_DEVICE with report text only. All inference uses firebase/ai from firebase 13.4.0. Demo cloud operations are simulations.

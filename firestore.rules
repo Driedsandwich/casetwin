@@ -1,0 +1,57 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function owner(uid) { return request.auth != null && request.auth.uid == uid; }
+    function fingerprint(fp) {
+      return fp.keys().hasOnly(['kind', 'field', 'condition', 'version'])
+        && fp.keys().hasAll(['kind', 'field', 'condition', 'version'])
+        && fp.version == 'r17'
+        && ((fp.kind == 'DUPLICATE_KEY' && fp.field == 'customer_id' && fp.condition == 'repeated_key')
+          || (fp.kind == 'EMBEDDED_NEWLINE' && fp.field in ['customer_id', 'name'] && fp.condition == 'embedded_newline')
+          || (fp.kind == 'MISSING_COLUMN' && fp.field in ['customer_id', 'name'] && fp.condition == 'required_column')
+          || (fp.kind == 'INVALID_ENCODING' && fp.field == '*' && fp.condition == 'invalid_utf8'));
+    }
+    function validationResult(result, fp) {
+      return result.keys().hasOnly(['ok', 'version', 'fingerprint', 'checks'])
+        && result.keys().hasAll(['ok', 'version', 'fingerprint', 'checks'])
+        && result.ok == false && result.version == 'r17'
+        && result.fingerprint.keys().hasOnly(['kind', 'field', 'condition'])
+        && result.fingerprint.kind == fp.kind && result.fingerprint.field == fp.field
+        && result.fingerprint.condition == fp.condition
+        && result.checks.keys().hasOnly(['encoding', 'required', 'newline', 'duplicate'])
+        && result.checks.keys().hasAll(['encoding', 'required', 'newline', 'duplicate'])
+        && result.checks.encoding in ['pass', 'fail', 'not_run']
+        && result.checks.required in ['pass', 'fail', 'not_run']
+        && result.checks.newline in ['pass', 'fail', 'not_run']
+        && result.checks.duplicate in ['pass', 'fail', 'not_run'];
+    }
+    function bundle(data, uid) {
+      return data.keys().hasOnly(['ownerId', 'schemaVersion', 'approved', 'synthetic', 'importerCode', 'fingerprint', 'validation', 'report', 'createdAt'])
+        && data.keys().hasAll(['ownerId', 'schemaVersion', 'approved', 'synthetic', 'importerCode', 'fingerprint', 'validation', 'report', 'createdAt'])
+        && data.ownerId == uid && data.schemaVersion == 1 && data.approved == true
+        && data.createdAt is timestamp
+        && data.synthetic.keys().hasOnly(['encoding', 'content'])
+        && data.synthetic.encoding in ['utf-8', 'base64']
+        && data.synthetic.content is string && data.synthetic.content.size() <= 20000
+        && data.importerCode is string && data.importerCode.size() <= 20000
+        && fingerprint(data.fingerprint)
+        && data.validation.keys().hasOnly(['matched', 'original', 'synthetic'])
+        && data.validation.matched == true
+        && validationResult(data.validation.original, data.fingerprint)
+        && validationResult(data.validation.synthetic, data.fingerprint)
+        && data.validation.original == data.validation.synthetic
+        && data.report.keys().hasOnly(['text', 'inferenceSource', 'simulated'])
+        && data.report.text is string && data.report.text.size() > 0 && data.report.text.size() <= 20000
+        && data.report.simulated is bool
+        && ((data.report.simulated == true && data.report.inferenceSource == null)
+          || (data.report.simulated == false && data.report.inferenceSource in ['on_device', 'in_cloud']));
+    }
+    match /users/{uid}/bundles/{bundleId} {
+      allow read, delete: if owner(uid);
+      allow create: if owner(uid) && bundle(request.resource.data, uid) && request.resource.data.createdAt == request.time;
+      allow update: if owner(uid) && bundle(request.resource.data, uid)
+        && request.resource.data.createdAt == resource.data.createdAt;
+    }
+    match /{document=**} { allow read, write: if false; }
+  }
+}

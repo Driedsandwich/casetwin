@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#30266B">
+<meta name="description" content="Reproduce a CSV import failure with fictional data while keeping customer CSVs on device.">
+<title>CaseTwin — Failure fingerprint</title>
+</head>
+<body>
+<svg aria-hidden="true" width="0" height="0" style="position:absolute"><defs>
+<symbol id="i-logo" viewBox="0 0 24 24"><path d="M4 3h9v14H4zM11 7h9v14h-9z"/><path d="m7 8 2 2 3-3m2 8 2 2 3-3"/></symbol>
+<symbol id="i-file" viewBox="0 0 24 24"><path d="M5 2h9l6 6v14H5zM14 2v7h6"/></symbol>
+<symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V6a4 4 0 0 1 8 0v4m-4 5v2"/></symbol>
+<symbol id="i-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m7 12 3 3 7-7"/></symbol>
+<symbol id="i-alert" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v6m0 4h.01"/></symbol>
+<symbol id="i-spark" viewBox="0 0 24 24"><path d="m12 3 2.5 6.5L21 12l-6.5 2.5L12 21l-2.5-6.5L3 12l6.5-2.5ZM20 2v4m-2-2h4"/></symbol>
+<symbol id="i-laptop" viewBox="0 0 24 24"><path d="M4 3h16v13H4zM2 20h20l-2-4H4z"/></symbol>
+<symbol id="i-cloud" viewBox="0 0 24 24"><path d="M6 19a5 5 0 0 1-1-10 7 7 0 0 1 13-2 6 6 0 0 1 0 12Z"/></symbol>
+<symbol id="i-shield" viewBox="0 0 24 24"><path d="m12 2 9 4v6c0 5-9 10-9 10S3 17 3 12V6Z"/><path d="m8 11 3 3 5-6"/></symbol>
+<symbol id="i-arrow" viewBox="0 0 24 24"><path d="M4 12h16m-6-6 6 6-6 6"/></symbol>
+<symbol id="i-refresh" viewBox="0 0 24 24"><path d="M20 9a8 8 0 0 0-14-3L3 9m0-6v6h6m-5 6a8 8 0 0 0 14 3l3-3m0 6v-6h-6"/></symbol>
+<symbol id="i-settings" viewBox="0 0 24 24"><path d="m9 3 1-1h4l1 3 3 1 3 1v4l-2 2-1 3-1 3h-4l-2-2-3-1-3-1v-4l2-2 1-3Z"/><circle cx="12" cy="11" r="3"/></symbol>
+<symbol id="i-x" viewBox="0 0 24 24"><path d="m6 6 12 12M6 18 18 6"/></symbol>
+<symbol id="i-code" viewBox="0 0 24 24"><path d="m7 6-6 6 6 6m10-12 6 6-6 6m-4-15-2 18"/></symbol>
+</defs></svg>
+<div id="app"></div>
+<div id="announcement" class="visually-hidden" aria-live="polite" aria-atomic="true"></div>
+<dialog id="settings-dialog" aria-labelledby="settings-title"></dialog>
+<dialog id="bundle-dialog" aria-labelledby="bundle-title"></dialog>
+<noscript>CaseTwin needs JavaScript to validate CSV files on this device.</noscript>
+<script type="module" src="/src/bootstrap.js"></script>
+</body>
+</html>
