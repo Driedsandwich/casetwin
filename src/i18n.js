@@ -1,6 +1,6 @@
 export const dictionaries = {
   en: {
-    reading: 'Reading the file locally…', cloudPayload: 'Exact cloud input · fictional CSV + code + fingerprint', title: 'CaseTwin — Failure fingerprint', context: 'C3 / Failure fingerprint', settings: 'Settings', close: 'Close',
+    reading: 'Reading the file locally…', cloudPayload: 'Exact cloud input · fictional CSV + code + fingerprint', title: 'CaseTwin — Failure fingerprint', context: 'Failure fingerprint', settings: 'Settings', close: 'Close',
     headline: 'One failure. Two matching inputs.', reviewHeadline: 'Review the matched failure',
     subheading: 'Turn a private customer failure into a small reproduction developers can use.', reviewSubheading: 'Review the evidence and exactly what you will share.',
     localBoundary: 'CSV analysis, synthesis & validation', cloudBoundary: 'Synthetic repro + importer code only',
@@ -49,7 +49,7 @@ export const dictionaries = {
     bundlePreview: 'Share bundle contents', preview: 'Preview bundle', exportHelp: 'Review the complete JSON below. Export saves only this approved bundle on your device.', step: 'LOCAL REPRODUCTION WORKSPACE'
   },
   ja: {
-    reading: 'ファイルを端末内で読み込んでいます…', cloudPayload: '雲への入力の全内容 · 架空 CSV・コード・指紋', title: 'CaseTwin — 失敗の指紋', context: 'C3 / 失敗の指紋', settings: '設定', close: '閉じる',
+    reading: 'ファイルを端末内で読み込んでいます…', cloudPayload: '雲への入力の全内容 · 架空 CSV・コード・指紋', title: 'CaseTwin — 失敗の指紋', context: '失敗の指紋', settings: '設定', close: '閉じる',
     headline: 'ひとつの失敗。ふたつの入力。', reviewHeadline: '渡す前に同じ失敗を確かめる',
     subheading: '客のデータを持ち出さずに開発者が試せる小さな再現へ。', reviewSubheading: '証拠と共有する内容を確認します。',
     localBoundary: 'CSV の分析・生成・検査', cloudBoundary: '架空の再現と取り込みコードだけ',
