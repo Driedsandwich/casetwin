@@ -1,0 +1,379 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; connect-src 'none'; img-src data:; font-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<title>CaseTwin — 失敗の指紋</title>
+<style>
+:root{--ink:#23263d;--muted:#62677d;--indigo:#34306d;--deep:#282456;--line:#d7dbe6;--bg:#eef0f6;--pale:#f5f6fa;--red:#b62935;--red-bg:#fcebed;--green:#237740;--green-bg:#eaf5ec;--shadow:0 5px 20px #25234c05}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:"Hiragino Sans","Yu Gothic UI","Yu Gothic",Meiryo,sans-serif;font-size:14px;line-height:1.6}html[lang=en] body{font-family:Inter,system-ui,sans-serif}button,input,select,textarea{font:inherit}button,select,.file-label{min-height:44px}button,.file-label{cursor:pointer}button{border:1px solid #c4c8d8;border-radius:8px;background:white;color:var(--ink);padding:10px 17px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;gap:8px;transition:background .15s,border-color .15s}button:hover:not(:disabled),.file-label:hover{background:#f0eff8;border-color:#8c87b4}button.primary{background:var(--indigo);border-color:var(--indigo);color:white}button.primary:hover:not(:disabled){background:#25204f}button:disabled{cursor:not-allowed;opacity:.42}button:focus-visible,select:focus-visible,input:focus-visible,textarea:focus-visible,.file-label:focus-within{outline:3px solid #8c81df;outline-offset:3px}svg.icon{width:20px;height:20px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}.brand svg{width:29px;height:29px}.top{background:var(--deep);color:white;padding:12px 28px;display:flex;align-items:center;justify-content:space-between;gap:20px}.brand{display:flex;align-items:center;gap:12px;font-size:26px;font-weight:800;letter-spacing:-.7px}.brand small{border-left:1px solid #77739b;margin-left:8px;padding-left:20px;font-size:13px;letter-spacing:.3px;font-weight:500;color:#e0deef}.head-actions{display:flex;gap:10px;align-items:center}.top button{background:transparent;color:white;border-color:#69658b}.language{display:flex;border:1px solid #69658b;border-radius:8px;overflow:hidden}.language button{border:0;border-radius:0;padding:8px 13px}.language button[aria-pressed=true]{background:white;color:var(--deep)}.head-actions .settings{padding:10px 12px}.guide{background:#e6e5f1;border-bottom:1px solid #d1cee5;color:#3b375a;padding:13px 28px;font-size:12px;line-height:1.9}.guide-inner{max-width:1440px;margin:auto;display:flex;gap:12px;align-items:flex-start}.guide svg{margin-top:2px}.shell{max-width:1520px;margin:auto;padding:23px 28px 22px}.page-heading{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;margin-bottom:18px}.eyebrow{font-size:11px;font-weight:800;letter-spacing:1.7px;color:var(--muted);text-transform:uppercase;margin-bottom:5px}h1{font-size:clamp(24px,2.65vw,38px);line-height:1.3;letter-spacing:-.8px;margin:0;font-weight:800}.subheading{color:var(--muted);margin:7px 0 0;font-size:13px}.step-count{font-size:12px;color:var(--muted);white-space:nowrap}.environment{display:flex;align-items:center;justify-content:space-between;background:#fafbfe;border:1px solid var(--line);border-radius:10px;padding:8px 14px;gap:14px;margin-bottom:18px}.boundary{display:flex;gap:20px;align-items:center;font-size:11px;color:var(--muted)}.boundary span{display:flex;align-items:center;gap:7px}.boundary strong{color:var(--indigo);letter-spacing:.4px}.ai-switch{display:flex;align-items:center;gap:10px;font-size:12px}.switch{display:flex;gap:3px;background:#e9eaf1;padding:3px;border-radius:8px}.switch button{min-width:53px;padding:5px 10px;background:transparent;border-color:transparent;font-size:12px}.switch button[aria-pressed=true]{background:white;box-shadow:0 1px 4px #20204016;border-color:#d5d8e4}.workspace{display:grid;grid-template-columns:minmax(260px,1fr) minmax(410px,1.55fr) minmax(260px,1fr);gap:18px;align-items:stretch}.side-stack{display:flex;flex-direction:column;gap:16px;min-width:0}.panel{border:1px solid #cbd0df;border-radius:12px;background:#fff;box-shadow:var(--shadow);overflow:hidden}.panel-pad{padding:20px}.panel-head{display:flex;gap:12px;align-items:flex-start;margin-bottom:15px}.panel-head>.icon{width:29px;height:34px;margin-top:2px}.panel-head h2{font-size:19px;margin:0 0 5px;line-height:1.4;letter-spacing:-.4px}h2,h3,h4,p{overflow-wrap:anywhere}h3{font-size:15px;margin:0 0 12px}.badge{display:inline-flex;align-items:center;gap:5px;border-radius:5px;background:#eeedf5;color:#4a466d;padding:3px 8px;font-size:10px;font-weight:800;line-height:1.5}.badge.private{background:var(--indigo);color:white}.badges{display:flex;gap:5px;flex-wrap:wrap}.file-name{font-size:13px;font-weight:600;overflow-wrap:anywhere;margin:12px 0 2px}.meta{font-size:11px;color:var(--muted);margin:0 0 14px}.load-actions{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0}.load-actions button,.file-label{font-size:12px;flex:1;padding:10px 8px;white-space:nowrap}.file-label{display:flex;justify-content:center;align-items:center;gap:6px;border:1px solid #c4c8d8;border-radius:8px;background:white;font-weight:700;position:relative}.file-label input{position:absolute;inset:0;opacity:0;width:100%;cursor:pointer}.small{font-size:11px;color:var(--muted);line-height:1.7}.status-line{background:var(--red-bg);border-radius:7px;color:var(--red);padding:8px 10px;font-size:12px;font-weight:800;display:flex;align-items:center;gap:8px;margin:15px 0 12px}.status-line.pass{color:var(--green);background:var(--green-bg)}.status-line.neutral{background:#eeedf6;color:#575275}.table-wrap{overflow:auto;border:1px solid var(--line);border-radius:7px}table{border-collapse:collapse;width:100%;font-size:10px;text-align:left;table-layout:fixed}th{background:#eff0f5;color:#4f536b;font-weight:700}th,td{padding:7px 8px;border-bottom:1px solid #e1e4ed;vertical-align:top;overflow-wrap:anywhere}tr:last-child td{border-bottom:0}th:first-child,td:first-child{width:35px;text-align:center}td{white-space:pre-wrap}tr.marked td{background:#fff4f4}th:nth-child(2){width:45%}.note{margin-top:12px;padding:11px 12px;background:#f1f2f7;border-radius:7px;font-size:11px;color:#575c70}.note strong{color:var(--ink)}.empty{padding:26px 10px;text-align:center;color:var(--muted);font-size:12px;border:1px dashed #d1d5e2;border-radius:9px;background:#fafbfe}.empty .icon{width:34px;height:34px;display:block;margin:0 auto 12px;color:#a2a5b9}.candidates{padding:17px 20px}.title-row{display:flex;align-items:center;gap:8px;margin-bottom:8px}.title-row h3{margin:0}.candidate-list{list-style:none;margin:13px 0;padding:0}.candidate-list li{display:flex;gap:8px;border-bottom:1px solid var(--line);padding:9px 0;font-size:12px;align-items:center}.candidate-list .icon{width:16px;height:16px;color:#77728c}.candidate-list .chosen{font-weight:700;color:var(--indigo)}.candidates button{width:100%;font-size:12px}.field-label{display:block;font-size:11px;color:var(--muted);font-weight:700;margin:12px 0 5px}select{width:100%;background:white;border:1px solid #c8cddd;border-radius:7px;padding:9px 30px 9px 10px;color:var(--ink);font-size:12px}.fingerprint{display:flex;flex-direction:column;position:relative;min-width:0}.fingerprint-head{background:var(--indigo);color:white;text-align:center;padding:17px 15px}.fingerprint-head .eyebrow{color:#c9c5e5;font-size:9px;margin:0 0 2px}.fingerprint-head h2{font-size:24px;margin:0;letter-spacing:.5px}.fingerprint-body{padding:25px 25px 20px;display:flex;flex-direction:column;flex:1}.error-kind{text-align:center;font-size:clamp(25px,2.9vw,43px);line-height:1.2;font-weight:850;color:var(--red);letter-spacing:-1px;overflow-wrap:anywhere;margin:5px 0 22px}.error-kind.idle{font-size:26px;color:var(--ink);line-height:1.5;margin:14px 0 24px}.finger-fields{margin:0 auto;width:min(100%,350px)}.finger-fields>div{display:grid;grid-template-columns:100px 1fr;gap:15px;padding:10px 0;border-bottom:1px solid var(--line);align-items:baseline}.finger-fields>div:last-child{border:0}.finger-fields dt{font-size:12px;color:var(--muted)}.finger-fields dd{margin:0;font-size:17px;font-weight:750;overflow-wrap:anywhere}.matches{position:relative;display:flex;justify-content:center;gap:10px;padding-top:30px;margin-top:auto}.match-card{width:50%;border:1px solid #c6c9da;border-radius:11px;background:#fafafe;padding:13px 11px;text-align:center;z-index:1;min-width:0}.match-card .small{font-size:10px}.match-card strong{display:block;font-size:13px;margin:3px 0}.match-card code{font-size:10px;overflow-wrap:anywhere}.match-card .badge{margin:6px 0 3px}.badge.fail{background:#fadfe1;color:var(--red)}.badge.pass{background:var(--green-bg);color:var(--green)}.join{height:42px;display:flex;justify-content:center}.join svg{width:70%;height:42px;overflow:visible}.result{padding:13px 15px;border:1px solid #d9dce8;background:#f0f1f7;border-radius:10px;text-align:center}.result strong{display:flex;gap:8px;align-items:center;justify-content:center;font-size:20px;line-height:1.5}.result .icon{width:25px;height:25px}.result.success{background:var(--green-bg);border-color:#d7eadc;color:#226437}.result.failure{background:var(--red-bg);border-color:#f2cfd4;color:var(--red)}.result p{margin:5px 0 0;font-size:11px}.finger-caption{font-size:10px;color:var(--muted);margin:12px 0 0;text-align:center}.generator{padding:17px 20px;flex:1}.generator p{font-size:12px;margin:8px 0;color:var(--muted)}.generator .algorithm{display:flex;gap:6px;align-items:center;font-size:10px;color:#68637f;margin-top:17px;flex-wrap:wrap}.algorithm span{background:#efedf5;border-radius:4px;padding:4px 6px}.action-bar{margin-top:17px;padding:13px 16px;background:#fff;border:1px solid #cbd0df;border-radius:11px;display:flex;align-items:center;justify-content:space-between;gap:15px}.validator{display:flex;align-items:center;gap:10px;font-size:12px;font-weight:750}.validator .icon{width:26px;height:26px}.action-buttons{display:flex;align-items:center;gap:9px;flex-wrap:wrap}.action-buttons button{font-size:12px}.footer{padding:13px 28px;background:var(--deep);color:#e4e2f2;display:flex;align-items:center;justify-content:space-between;font-size:11px;gap:20px}.footer span{display:flex;gap:8px;align-items:center}.footer .icon{width:16px;height:16px}.footer .quiet{color:#bcb8d6;font-size:10px}.toast{font-size:12px;padding:11px 14px;margin-bottom:14px;border:1px solid #d7d3ea;border-radius:8px;background:#f9f8fe}.toast.error{border-color:#e9b7bd;color:var(--red);background:#fff4f5}.review-heading{margin-bottom:18px}.review-grid .panel-pad{padding:18px}.details{margin:13px 0}.details>div{display:grid;grid-template-columns:42% 58%;gap:0;border-top:1px solid var(--line);font-size:11px;padding:6px 0}.details dt{font-weight:700}.details dd{margin:0;overflow-wrap:anywhere}.privacy-card{background:#f0f1f7;border-radius:9px;padding:14px;margin-top:18px}.privacy-card h3{font-size:13px;display:flex;align-items:center;gap:7px;margin:0 0 8px}.privacy-card ul{margin:0;padding-left:20px;font-size:12px}.report{margin-top:17px;border-top:1px solid var(--line);padding-top:16px}.report h3{font-size:15px;margin-bottom:7px}.report h4{font-size:12px;margin:12px 0 6px}.report p{font-size:11px;margin:0 0 9px}.report dl{font-size:11px;margin:10px 0 0}.report dt{font-weight:800;margin:10px 0 3px}.report dd{margin:0;color:#555a70}.review-grid .error-kind{font-size:clamp(24px,2.7vw,40px)}.review-grid .match-card{text-align:left;padding:15px 12px}.review-grid .match-card .details>div{display:block;padding:6px 0}.review-grid .match-card dd{margin-top:2px}.review-grid .matches{margin-top:12px}.review-grid .fingerprint-body{padding:24px 20px}.review-grid .fingerprint-head{background:white;color:var(--ink);border-bottom:1px solid var(--line)}.review-grid .fingerprint-head .eyebrow{color:var(--muted)}.review-grid .result{margin-top:auto}.transfer{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}.transfer .privacy-card{margin:0;border:1px solid var(--line);background:white}.transfer ul{font-size:12px}.transfer p{margin:5px 0 0;font-size:11px;color:var(--muted)}.confirm{display:flex;align-items:center;gap:10px;font-size:12px;cursor:pointer;min-height:44px}.confirm input{width:19px;height:19px;accent-color:var(--indigo);flex-shrink:0}.review-actions{align-items:flex-start}.review-actions .action-buttons{justify-content:flex-end}.review-actions .small{display:block;margin-top:4px}.review-actions>div:first-child{flex:1}dialog{border:1px solid #c8ccdd;border-radius:15px;background:#fff;color:var(--ink);padding:0;max-width:min(760px,94vw);width:760px;max-height:90vh;box-shadow:0 20px 100px #16122d44}dialog::backdrop{background:#24203980;backdrop-filter:blur(3px)}.dialog-head{position:sticky;top:0;background:white;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line);padding:16px 22px;z-index:2}.dialog-head h2{font-size:20px;margin:0}.dialog-head button{padding:8px 12px}.dialog-content{padding:21px 24px}.dialog-content h3{margin-top:19px}.dialog-content p,.dialog-content li{font-size:12px}.dialog-content .details>div{grid-template-columns:32% 68%;padding:10px 0}.dialog-content code{color:var(--indigo);font-size:11px}.dialog-content textarea{width:100%;min-height:280px;resize:vertical;border:1px solid #cbd0df;border-radius:8px;padding:13px;background:#f7f8fb;font:11px/1.6 ui-monospace,SFMono-Regular,Consolas,monospace;color:#34364b}.bundle-files{list-style:none;margin:15px 0;padding:0}.bundle-files li{display:flex;justify-content:space-between;border-bottom:1px solid var(--line);padding:8px 0;gap:15px}.bundle-files span{color:var(--muted)}.visually-hidden{position:absolute;width:1px;height:1px;padding:0;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}.loading{opacity:.6;pointer-events:none}noscript{display:block;padding:30px;text-align:center}
+@media(min-width:1500px){.error-kind{font-size:44px}.shell{padding-top:26px}}
+@media(max-width:1150px){.shell{padding:20px 18px}.workspace{grid-template-columns:minmax(230px,1fr) minmax(340px,1.4fr) minmax(230px,1fr);gap:12px}.panel-pad,.candidates,.generator{padding:16px}.fingerprint-body{padding:20px 16px}.boundary{gap:10px}.boundary span{font-size:10px}.brand small{display:none}.error-kind{font-size:31px}.result strong{font-size:18px}.action-buttons button{padding:10px 12px}}
+@media(max-width:900px){.workspace{grid-template-columns:1fr}.fingerprint-body{min-height:480px}.side-stack{display:grid;grid-template-columns:1fr 1fr;gap:14px}.review-grid .side-stack{display:block}.environment{align-items:flex-start;flex-direction:column}.boundary{flex-wrap:wrap}.ai-switch{align-self:flex-end}.action-bar{align-items:flex-start;flex-direction:column}.action-buttons{width:100%}.action-buttons button{flex:1}.error-kind,.review-grid .error-kind{font-size:39px}.review-grid .matches{margin-bottom:20px}.review-grid .match-card .details>div{display:grid}.page-heading{align-items:flex-start}.step-count{display:none}.fingerprint-head h2{font-size:22px}}
+@media(max-width:560px){.top{padding:10px 15px;gap:10px}.brand{font-size:22px;gap:7px}.brand svg{width:23px}.head-actions{gap:7px}.top .settings-label{display:none}.language button{padding:8px 10px}.shell{padding:18px 14px}.guide{padding:12px 15px;font-size:11px}.guide-inner{gap:8px}.guide .icon{display:none}.side-stack,.transfer{grid-template-columns:1fr}.boundary{display:block}.boundary span+span{margin-top:5px}.ai-switch{align-self:stretch;justify-content:space-between}.page-heading{margin-bottom:15px}h1{font-size:26px}.action-buttons{flex-direction:column;align-items:stretch}.action-buttons button{width:100%}.footer{padding:14px;display:block}.footer .quiet{margin-top:6px}.fingerprint-body{padding:24px 15px;min-height:460px}.error-kind,.review-grid .error-kind{font-size:29px}.finger-fields>div{grid-template-columns:90px 1fr}.finger-fields dd{font-size:16px}.match-card{padding:12px 7px}.match-card strong{font-size:12px}.result strong{font-size:19px}.transfer{gap:10px}.review-grid .match-card .details>div{display:block}.dialog-content{padding:15px}.dialog-head{padding:12px 15px}.dialog-content .details>div{display:block}.dialog-content dd{margin-top:5px}}
+</style>
+</head>
+<body>
+<svg aria-hidden="true" width="0" height="0" style="position:absolute"><defs>
+<symbol id="i-logo" viewBox="0 0 24 24"><path d="M4 3h9v14H4zM11 7h9v14h-9z"/><path d="m7 8 2 2 3-3m2 8 2 2 3-3"/></symbol>
+<symbol id="i-file" viewBox="0 0 24 24"><path d="M5 2h9l6 6v14H5zM14 2v7h6"/></symbol>
+<symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V6a4 4 0 0 1 8 0v4m-4 5v2"/></symbol>
+<symbol id="i-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m7 12 3 3 7-7"/></symbol>
+<symbol id="i-alert" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v6m0 4h.01"/></symbol>
+<symbol id="i-spark" viewBox="0 0 24 24"><path d="m12 3 2.5 6.5L21 12l-6.5 2.5L12 21l-2.5-6.5L3 12l6.5-2.5ZM20 2v4m-2-2h4"/></symbol>
+<symbol id="i-laptop" viewBox="0 0 24 24"><path d="M4 3h16v13H4zM2 20h20l-2-4H4z"/></symbol>
+<symbol id="i-cloud" viewBox="0 0 24 24"><path d="M6 19a5 5 0 0 1-1-10 7 7 0 0 1 13-2 6 6 0 0 1 0 12Z"/></symbol>
+<symbol id="i-shield" viewBox="0 0 24 24"><path d="m12 2 9 4v6c0 5-9 10-9 10S3 17 3 12V6Z"/><path d="m8 11 3 3 5-6"/></symbol>
+<symbol id="i-arrow" viewBox="0 0 24 24"><path d="M4 12h16m-6-6 6 6-6 6"/></symbol>
+<symbol id="i-refresh" viewBox="0 0 24 24"><path d="M20 9a8 8 0 0 0-14-3L3 9m0-6v6h6m-5 6a8 8 0 0 0 14 3l3-3m0 6v-6h-6"/></symbol>
+<symbol id="i-settings" viewBox="0 0 24 24"><path d="m9 3 1-1h4l1 3 3 1 3 1v4l-2 2-1 3-1 3h-4l-2-2-3-1-3-1v-4l2-2 1-3Z"/><circle cx="12" cy="11" r="3"/></symbol>
+<symbol id="i-x" viewBox="0 0 24 24"><path d="m6 6 12 12M6 18 18 6"/></symbol>
+<symbol id="i-code" viewBox="0 0 24 24"><path d="m7 6-6 6 6 6m10-12 6 6-6 6m-4-15-2 18"/></symbol>
+</defs></svg>
+<div id="app"></div><div id="announcement" class="visually-hidden" aria-live="polite" aria-atomic="true"></div>
+<dialog id="settings-dialog" aria-labelledby="settings-title"></dialog>
+<dialog id="bundle-dialog" aria-labelledby="bundle-title"></dialog>
+<noscript>この試作には JavaScript が必要です。 / This prototype requires JavaScript.</noscript>
+<script id="case-twin-core">
+'use strict';
+const CaseTwinCore = (() => {
+  const VERSION = 'r17';
+  const REQUIRED = ['customer_id', 'name'];
+  function encodeCSV(headers, rows) {
+    const quote = value => /[",\r\n]/.test(String(value)) ? '"' + String(value).replace(/"/g, '""') + '"' : String(value);
+    return [headers, ...rows].map(row => row.map(quote).join(',')).join('\r\n') + '\r\n';
+  }
+  function parseCSV(text) {
+    text = text.replace(/^\uFEFF/, '');
+    const records = []; let row = [], cell = '', mode = 'start';
+    const pushCell = () => { row.push(cell); cell = ''; mode = 'start'; };
+    const pushRow = () => { pushCell(); if (!(row.length === 1 && row[0] === '')) records.push(row); row = []; if (records.length > 10001) throw new Error('TOO_MANY_ROWS'); };
+    for (let i = 0; i < text.length; i++) {
+      const ch = text[i];
+      if (mode === 'quoted') {
+        if (ch === '"') { if (text[i + 1] === '"') { cell += '"'; i++; } else mode = 'closed'; }
+        else cell += ch;
+      } else if (ch === ',') pushCell();
+      else if (ch === '\r' || ch === '\n') { pushRow(); if (ch === '\r' && text[i + 1] === '\n') i++; }
+      else if (ch === '"' && mode === 'start') mode = 'quoted';
+      else { if (mode === 'closed' || ch === '"') throw new Error('CSV_FORMAT'); cell += ch; mode = 'plain'; }
+    }
+    if (mode === 'quoted') throw new Error('CSV_FORMAT');
+    if (cell !== '' || row.length || mode !== 'start') pushRow();
+    const headers = records.shift() || [];
+    if (new Set(headers).size !== headers.length || records.some(r => r.length !== headers.length)) throw new Error('CSV_FORMAT');
+    return { headers, rows: records };
+  }
+  function decodeBytes(bytes) {
+    let encodingValid = true, text;
+    try { text = new TextDecoder('utf-8', { fatal: true }).decode(bytes); }
+    catch (_) { encodingValid = false; text = new TextDecoder('utf-8').decode(bytes); }
+    return { text, encodingValid };
+  }
+  function readBytes(bytes) {
+    const decoded = decodeBytes(bytes);
+    try { return { ...decoded, ...parseCSV(decoded.text), parseError: null }; }
+    catch (e) { return { ...decoded, headers: [], rows: [], parseError: e.message }; }
+  }
+  function readText(text) { return readBytes(new TextEncoder().encode(text)); }
+  function validate(source) {
+    const checks = { encoding: 'not_run', required: 'not_run', newline: 'not_run', duplicate: 'not_run' };
+    const fail = (kind, field, condition, row = null, relatedRows = []) => ({ ok: false, version: VERSION, fingerprint: { kind, field, condition }, row, relatedRows, checks });
+    if (!source.encodingValid) { checks.encoding = 'fail'; return fail('INVALID_ENCODING', '*', 'invalid_utf8'); }
+    checks.encoding = 'pass';
+    if (source.parseError) return fail('CSV_FORMAT', '*', source.parseError === 'TOO_MANY_ROWS' ? 'row_limit' : 'malformed_csv');
+    for (const field of REQUIRED) if (!source.headers.includes(field)) { checks.required = 'fail'; return fail('MISSING_COLUMN', field, 'required_column'); }
+    checks.required = 'pass';
+    for (let i = 0; i < source.rows.length; i++) for (let j = 0; j < source.headers.length; j++) {
+      if (/[\r\n]/.test(source.rows[i][j])) { checks.newline = 'fail'; return fail('EMBEDDED_NEWLINE', source.headers[j], 'embedded_newline', i + 1); }
+    }
+    checks.newline = 'pass';
+    const index = source.headers.indexOf('customer_id'), seen = new Map();
+    for (let i = 0; i < source.rows.length; i++) {
+      const key = source.rows[i][index];
+      if (seen.has(key)) { checks.duplicate = 'fail'; return fail('DUPLICATE_KEY', 'customer_id', 'repeated_key', i + 1, [seen.get(key), i + 1]); }
+      seen.set(key, i + 1);
+    }
+    checks.duplicate = 'pass';
+    return { ok: true, version: VERSION, fingerprint: null, row: null, relatedRows: [], checks };
+  }
+  function fingerprintsMatch(original, synthetic) {
+    if (!original || !synthetic || original.ok || synthetic.ok || original.version !== synthetic.version) return false;
+    return ['kind', 'field', 'condition'].every(key => original.fingerprint[key] === synthetic.fingerprint[key]);
+  }
+  function makeSample() {
+    const rows = Array.from({ length: 64 }, (_, i) => ['DEMO-FICTION-' + String(i === 42 ? 42 : i + 1).padStart(4, '0'), 'Fictional customer ' + String(i + 1).padStart(3, '0')]);
+    return readText(encodeCSV(REQUIRED, rows));
+  }
+  function generateSynthetic(original, condition) {
+    if (!['duplicate', 'newline', 'missing', 'encoding'].includes(condition)) throw new Error('UNKNOWN_CONDITION');
+    const forbidden = new Set(original.rows.flat());
+    const report = validate(original);
+    const field = ['customer_id', 'name'].includes(report.fingerprint?.field) ? report.fingerprint.field : 'name';
+    let attempt = 0;
+    for (;;) {
+      const salt = attempt ? '-' + attempt : '';
+      const id = n => 'SYN-FICTION' + salt + '-' + String(n).padStart(3, '0');
+      const name = n => 'Fictional synthetic' + salt + ' ' + String.fromCharCode(64 + n);
+      let headers = [...REQUIRED];
+      let rows = [[id(1), name(1)], [id(2), name(2)], [id(3), name(3)]];
+      if (condition === 'duplicate') rows[2][0] = rows[1][0];
+      if (condition === 'newline') rows[1][headers.indexOf(field)] += '\nFictional second line' + salt;
+      if (condition === 'missing') { const j = headers.indexOf(field); headers.splice(j, 1); rows = rows.map(row => row.filter((_, k) => k !== j)); }
+      let csv = encodeCSV(headers, rows), bytes = new TextEncoder().encode(csv);
+      if (condition === 'encoding') {
+        const marker = bytes.length - 2;
+        bytes = new Uint8Array([...bytes.slice(0, marker), 255, ...bytes.slice(marker)]);
+      }
+      const data = readBytes(bytes);
+      if (!data.rows.flat().some(value => forbidden.has(value))) return { csv: data.text, bytes, data, condition };
+      attempt++;
+    }
+  }
+  function safeReport(report) {
+    return { ok: report.ok, version: report.version, fingerprint: report.fingerprint && { ...report.fingerprint }, checks: { ...report.checks } };
+  }
+  function importerCode() {
+    return "'use strict';\nconst VERSION = 'r17';\nconst REQUIRED = ['customer_id', 'name'];\n" + [parseCSV, decodeBytes, readBytes, validate].map(fn => fn.toString()).join('\n\n') + '\n\n// Node: validate(readBytes(require("node:fs").readFileSync(path)))\nif (typeof module !== "undefined") module.exports = { readBytes, validate };\n';
+  }
+  function buildBundle(originalReport, synthetic, approved, draft) {
+    const syntheticReport = validate(synthetic.data);
+    if (!approved || !fingerprintsMatch(originalReport, syntheticReport)) throw new Error('HANDOFF_NOT_APPROVED');
+    const validation = { matched: true, original: safeReport(originalReport), synthetic: safeReport(syntheticReport) };
+    // Original CSV, names, values, row numbers and file metadata never enter this allowlist.
+    const csvFile = synthetic.condition === 'encoding'
+      ? { encoding: 'base64', content: bytesToBase64(synthetic.bytes) }
+      : { encoding: 'utf-8', content: synthetic.csv };
+    return { prototype: true, sent: false, files: { 'repro-synthetic.csv': csvFile, 'importer-r17.cjs': { encoding: 'utf-8', content: importerCode() }, 'validation.json': { encoding: 'utf-8', content: JSON.stringify(validation, null, 2) }, 'report-draft.txt': { encoding: 'utf-8', content: draft } } };
+  }
+  function bytesToBase64(bytes) {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'; let out = '';
+    for (let i = 0; i < bytes.length; i += 3) {
+      const n = (bytes[i] << 16) | ((bytes[i + 1] || 0) << 8) | (bytes[i + 2] || 0);
+      out += chars[(n >>> 18) & 63] + chars[(n >>> 12) & 63] + (i + 1 < bytes.length ? chars[(n >>> 6) & 63] : '=') + (i + 2 < bytes.length ? chars[n & 63] : '=');
+    }
+    return out;
+  }
+  return { VERSION, REQUIRED, encodeCSV, parseCSV, readBytes, readText, validate, fingerprintsMatch, makeSample, generateSynthetic, safeReport, importerCode, buildBundle };
+})();
+</script>
+<script id="case-twin-ui">
+'use strict';
+const C = CaseTwinCore;
+const state = { lang: 'ja', ai: true, source: null, filename: '', original: null, synthetic: null, syntheticReport: null, candidates: false, condition: '', view: 'main', approved: false, notice: '', busy: false };
+let loadToken = 0;
+const tr = (ja, en) => state.lang === 'ja' ? ja : en;
+const esc = value => String(value ?? '').replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]);
+const icon = name => `<svg class="icon" aria-hidden="true"><use href="#i-${name}"></use></svg>`;
+const button = (action, label, options = {}) => `<button type="button" data-action="${action}" ${options.id ? `id="${options.id}"` : ''} ${options.primary ? 'class="primary"' : ''} ${options.disabled ? 'disabled' : ''}>${options.icon ? icon(options.icon) : ''}${label}</button>`;
+const matched = () => C.fingerprintsMatch(state.original, state.syntheticReport);
+const conditionName = value => ({ repeated_key: tr('同じ鍵が複数行にある', 'Repeated key'), embedded_newline: tr('セル内に改行がある', 'Embedded newline'), required_column: tr('必須の列がない', 'Required column missing'), invalid_utf8: tr('UTF-8 として読めない', 'Invalid UTF-8'), malformed_csv: tr('CSV の構造が不正', 'Malformed CSV'), row_limit: tr('10,000 行の上限を超過', 'Over 10,000 rows') })[value] || '—';
+const candidateName = value => ({ duplicate: tr('鍵の重複', 'Duplicate key'), newline: tr('セル内の改行', 'Embedded newline'), encoding: tr('文字の符号（UTF-8）', 'Encoding (UTF-8)'), missing: tr('必須列の不足', 'Missing required column') })[value] || '—';
+function announce(message) { document.getElementById('announcement').textContent = message; }
+function status(report) {
+  if (!report) return '';
+  return `<div class="status-line ${report.ok ? 'pass' : ''}">${icon(report.ok ? 'check' : 'alert')} ${report.ok ? tr('検査を通過', 'PASS') : 'FAIL · ' + esc(report.fingerprint.kind)}</div>`;
+}
+function dataTable(data, report, original = false) {
+  if (!data || !data.headers.length) return `<div class="note">${tr('表を表示できません。検査結果を確認してください。', 'Preview unavailable. Check the validation result.')}</div>`;
+  const focusRows = report?.relatedRows?.length ? report.relatedRows : report?.row ? [report.row] : [];
+  let indexes = original && focusRows.length ? [...new Set(focusRows.map(n => n - 1))] : data.rows.slice(0, original ? 4 : 3).map((_, i) => i);
+  const cols = data.headers.slice(0, 3);
+  return `<div class="table-wrap"><table><caption class="visually-hidden">${original ? tr('元の CSV の端末内プレビュー', 'On-device preview of original CSV') : tr('架空の再現 CSV', 'Fictional synthetic CSV')}</caption><thead><tr><th scope="col">${tr('行', '#')}</th>${cols.map(h => `<th scope="col">${esc(h)}</th>`).join('')}</tr></thead><tbody>${indexes.map(i => `<tr class="${focusRows.includes(i + 1) ? 'marked' : ''}"><td>${i + 1}</td>${cols.map((_, j) => `<td>${esc(data.rows[i][j].length > 85 ? data.rows[i][j].slice(0, 85) + '…' : data.rows[i][j])}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
+}
+function sourceNote() {
+  const r = state.original;
+  if (!r) return '';
+  if (r.fingerprint?.kind === 'DUPLICATE_KEY') return tr(`データ行 ${r.relatedRows.join(' と ')} で同じ customer_id が使われています。`, `Data rows ${r.relatedRows.join(' and ')} share the same customer_id.`);
+  if (r.ok) return tr('この検査では失敗が見つかりませんでした。同じ「失敗」としては共有できません。', 'No failure found by this validator. There is no matching failure to hand off.');
+  return `${conditionName(r.fingerprint.condition)}${r.row ? tr(`（データ行 ${r.row}）`, ` (data row ${r.row})`) : ''}`;
+}
+function originalPanel(review = false) {
+  return `<section class="panel panel-pad" aria-labelledby="original-title"><div class="panel-head">${icon('file')}<div><h2 id="original-title">${tr('元の CSV', 'Original CSV')}</h2><div class="badges"><span class="badge private">Private</span><span class="badge">${tr('この端末の中', 'On device')}</span></div></div></div>
+  ${state.source ? `<p class="file-name">${esc(state.filename)}</p><p class="meta">${state.source.rows.length} ${tr('データ行', 'data rows')} · ${tr('外部送信なし', 'No upload')}</p>` : `<p class="small">${tr('まずは、架空の見本で流れを試しましょう。', 'Start with the fictional sample CSV.')}</p>`}
+  ${!review ? `<div class="load-actions">${button('sample', tr('見本の CSV を読み込む', 'Load sample CSV'), { primary: !state.source, disabled: state.busy })}<label class="file-label">${icon('file')}${tr('ファイルを選ぶ', 'Choose file')}<input type="file" id="csv-file" accept=".csv,text/csv" aria-label="${tr('CSV ファイルを端末内で読み込む', 'Read a CSV file on this device')}" ${state.busy ? 'disabled' : ''}></label></div><p class="small">${tr('見本は全 64 行、すべて架空の値。ファイルは UTF-8・2 MiB / 10,000 行まで。', 'Sample: 64 fully fictional rows. File limit: UTF-8, 2 MiB / 10,000 rows.')}</p>` : ''}
+  ${state.source ? status(state.original) + dataTable(state.source, state.original, true) + `<div class="note">${sourceNote()}<br>${tr('行番号はヘッダーを除くデータ行です。', 'Row numbers exclude the header.')}</div>` : `<div class="empty">${icon('file')}${tr('CSV の読み込みを待っています', 'Waiting for a CSV')}<br><span class="small">${tr('ファイルは端末のメモリ内だけで扱います。', 'Files stay in this page’s memory.')}</span></div>`}
+  ${review ? `<div class="privacy-card"><h3>${icon('laptop')}${tr('端末内だけの情報', 'Device-only information')}</h3><ul><li>${tr('元のファイル名・行・値', 'Original filename, rows and values')}</li><li>${tr('端末の候補・担当者の選択', 'Local candidates and manual choices')}</li></ul></div>` : ''}</section>`;
+}
+function conditionPicker() {
+  return `<label class="field-label" for="condition">${state.ai ? tr('再現に使う条件（変更できます）', 'Condition to reproduce (editable)') : tr('担当者が再現の条件を選んでください', 'Select a condition manually')}</label><select id="condition"><option value="" ${state.condition ? '' : 'selected'}>${tr('条件を選ぶ', 'Choose a condition')}</option>${['duplicate', 'newline', 'missing', 'encoding'].map(key => `<option value="${key}" ${state.condition === key ? 'selected' : ''}>${candidateName(key)}</option>`).join('')}</select>`;
+}
+function candidatesPanel() {
+  return `<section class="panel candidates"><div class="title-row">${icon(state.ai ? 'spark' : 'settings')}<h3>${state.ai ? tr('端末の AI の候補', 'Local AI candidates') : tr('担当者が条件を選ぶ', 'Manual condition selection')}</h3></div>
+  <span class="badge">${state.ai ? tr('見本の答え · 実推論なし', 'Mock response · no inference') : tr('端末 AI なし', 'Local AI unavailable')}</span>
+  ${state.ai ? state.candidates ? `<ul class="candidate-list"><li class="chosen">${icon('spark')}${tr('鍵の重複 · 見本の推奨候補', 'Duplicate key · sample suggestion')}</li><li>${icon('code')}${tr('セル内の改行 · 別の候補', 'Embedded newline · alternative')}</li><li>${icon('code')}${tr('符号・必須列 · 別の候補', 'Encoding / required columns · alternatives')}</li></ul><p class="small">${tr('この候補は固定の見本です。読み込んだ CSV を AI が分析した結果ではありません。', 'These are fixed sample answers, not AI analysis of the loaded file.')}</p>${conditionPicker()}` : `<p class="small">${tr('見本の候補を開き、再現に使う条件を確認します。', 'Open the sample suggestions and choose a condition.')}</p>${button('candidates', tr('端末の AI の候補を見る', 'View local AI candidates'), { icon: 'spark', disabled: !state.source || state.busy })}` : `<p class="small">${tr('AI の候補は出しません。元の CSV を雲へ送らず、下の条件を手で選びます。', 'No AI suggestions. Choose a condition below; the original CSV is never sent to the cloud.')}</p>${conditionPicker()}`}</section>`;
+}
+function syntheticPanel(review = false) {
+  return `<section class="panel panel-pad" aria-labelledby="synthetic-title"><div class="panel-head">${icon('file')}<div><h2 id="synthetic-title">${tr('架空の再現 CSV', 'Synthetic CSV')}</h2><div class="badges"><span class="badge">${tr('共有してよい', 'Shareable')}</span><span class="badge">${tr('架空の値だけ', 'Fictional values only')}</span></div></div></div>
+  ${state.synthetic ? `<p class="file-name">repro-synthetic.csv</p><p class="meta">3 ${tr('データ行 · プログラムが生成', 'data rows · generated by code')}</p>${!review ? status(state.syntheticReport) : ''}${dataTable(state.synthetic.data, state.syntheticReport)}<div class="note">${state.syntheticReport.fingerprint?.kind === 'DUPLICATE_KEY' ? tr('行 2 と 3 の鍵を重複させています。値はすべて新しい架空の値です。', 'Rows 2 and 3 share a key. Every value is newly generated and fictional.') : tr('選んだ条件を、架空の値だけで生成しました。', 'Generated the selected condition with fictional values only.')}${state.synthetic.condition === 'encoding' ? '<br>' + tr('不正な UTF-8 バイトを含みます。表示の � は代替文字です。共有プレビューでは元のバイトを Base64 で保持します。', 'Contains invalid UTF-8 bytes; � is a display replacement. The bundle preserves the bytes as Base64.') : ''}</div>` : `<div class="empty">${icon('file')}${tr('ここに、小さな再現物ができます', 'Your small reproduction appears here')}<br><span class="small">${tr('条件を保ち、値をすべて架空にします。', 'Same condition, all-fictional values.')}</span></div>`}
+  ${review ? reportPanel() : ''}</section>`;
+}
+function generatorPanel() {
+  return `<section class="panel generator"><div class="title-row">${icon('settings')}<h3>${tr('決まった手順で生成', 'Deterministic generator')}</h3></div><p>${tr('条件を保ち、3 行の架空 CSV を JavaScript で作ります。', 'JavaScript creates a 3-row fictional CSV that preserves the condition.')}</p><p>${tr('元と再現を、同じ検査 r17 に通します。生成・検査は実際に動くコードです。', 'Both inputs run through validator r17. Generation and validation are real code.')}</p><div class="algorithm"><span>${tr('条件', 'Condition')}</span>→<span>${tr('架空の値', 'Fictional values')}</span>→<span>${tr('同じ検査', 'Same validator')}</span></div></section>`;
+}
+function matchCard(original, review) {
+  const r = original ? state.original : state.syntheticReport;
+  const label = original ? tr('元の CSV', 'Original') : tr('架空の再現', 'Synthetic');
+  const data = original ? state.source : state.synthetic?.data;
+  const idIndex = data?.headers.indexOf('customer_id');
+  const value = r?.row && idIndex >= 0 ? data.rows[r.row - 1]?.[idIndex] : null;
+  return `<div class="match-card"><span class="small">${label}</span><strong>${r ? r.row ? tr(`データ行 ${r.row}`, `Data row ${r.row}`) : tr('ファイル全体', 'Whole file') : tr('検査待ち', 'Awaiting validation')}</strong>${r ? `<span class="badge ${r.ok ? 'pass' : 'fail'}">${r.ok ? 'PASS' : 'FAIL'}</span><br><code>${esc(r.fingerprint?.kind || '—')}</code>` : '<span class="badge">—</span>'}${review ? `<dl class="details"><div><dt>CSV</dt><dd>${esc(original ? state.filename : 'repro-synthetic.csv')}</dd></div>${value !== null ? `<div><dt>customer_id</dt><dd>${esc(value)}</dd></div>` : ''}<div><dt>${tr('検査の版', 'Validator')}</dt><dd>r17</dd></div></dl>` : ''}</div>`;
+}
+function fingerprintPanel(review = false) {
+  const r = state.original, fp = r?.fingerprint;
+  const success = matched();
+  const headline = fp ? fp.kind : r?.ok ? tr('失敗はありません', 'No failure found') : tr('ひとつの失敗を、\nふたつの入力で。', 'One failure.\nTwo matching inputs.');
+  return `<section class="panel fingerprint" aria-labelledby="fingerprint-title"><div class="fingerprint-head"><div class="eyebrow">${tr('種類・列・条件', 'FAILURE FINGERPRINT')}</div><h2 id="fingerprint-title">${tr('失敗の指紋', 'Failure fingerprint')}</h2></div><div class="fingerprint-body"><div class="error-kind ${fp ? '' : 'idle'}">${esc(headline).replace(/\n/g, '<br>')}</div>
+  <dl class="finger-fields"><div><dt>${tr('列', 'Field')}</dt><dd>${esc(fp?.field || '—')}</dd></div><div><dt>${tr('条件', 'Condition')}</dt><dd>${fp ? conditionName(fp.condition) : '—'}</dd></div><div><dt>${tr('検査の版', 'Validator')}</dt><dd>r17 <span class="badge">${tr('同じコード', 'Same code')}</span></dd></div></dl>
+  <div class="matches">${matchCard(true, review)}${matchCard(false, review)}</div><div class="join" aria-hidden="true"><svg viewBox="0 0 300 42"><path d="M75 0v9q0 10 18 10h39q18 0 18 12M225 0v9q0 10-18 10h-39q-18 0-18 12M150 28v8m-5-5 5 6 5-6" fill="none" stroke="${success ? '#659571' : '#aaaec1'}" stroke-width="1.5"/></svg></div>
+  <div class="result ${state.synthetic ? success ? 'success' : 'failure' : ''}" role="status"><strong>${icon(state.synthetic ? success ? 'check' : 'alert' : 'shield')}${state.synthetic ? success ? tr('同じ失敗を再現した', 'Same failure reproduced') : tr('再現できていない', 'Failure not reproduced') : tr('ふたつの指紋を照合します', 'Compare two fingerprints')}</strong><p>${state.synthetic ? success ? tr('種類・列・条件が一致 / 検査 r17', 'Error + field + condition match / validator r17') : tr('指紋が一致しません。条件を見直して作り直してください。', 'Fingerprints differ. Adjust the condition and generate again.') : tr('左から始めて、下の「架空の再現を作る」へ。', 'Start on the left, then choose “Create synthetic repro”.')}</p></div>
+  <p class="finger-caption">${tr('行番号と値が違っても、失敗の条件が同じかを確かめます。', 'Rows and values may differ; the failure condition must match.')}</p></div></section>`;
+}
+function mockCloudDraft(syntheticReport, importerSource, lang) {
+  // Fixed templates. Its only data inputs are the synthetic result and static importer code.
+  if (!importerSource.includes("const VERSION = 'r17'")) throw new Error('IMPORTER_VERSION');
+  const ja = lang === 'ja', pick = (a,b) => ja ? a : b;
+  const kind = syntheticReport.fingerprint?.kind;
+  const templates = {
+    DUPLICATE_KEY: {
+      title: pick('customer_id の重複で取り込みが停止', 'Duplicate customer_id rejects CSV import'),
+      evidence: pick('架空 CSV のデータ行 2 と 3 が同じ customer_id を持ち、検査 r17 が DUPLICATE_KEY を返しました。', 'Synthetic rows 2 and 3 share a customer_id; validator r17 returns DUPLICATE_KEY.'),
+      hypothesis: pick('重複する鍵を拒否する検査が、取り込みの停止につながっている可能性があります。実サービスの取り込み動作は未確認です。', 'Duplicate-key rejection may stop the import. Behavior in the production service is unverified.'),
+      fix: pick('書き込み前に重複を検出し、対象行が分かるエラーを返す案です。重複を許すべきかは開発者が仕様を確認してください。', 'Consider detecting duplicates before writes and returning a row-level error. A developer must confirm the intended duplicate policy.'),
+      regression: pick('架空 CSV を修正後の検査へ通し、意図した重複の扱いと部分的な書き込みが起きないことを確かめます。', 'Run the synthetic CSV against the patch; verify the intended duplicate policy and absence of partial writes.')
+    },
+    EMBEDDED_NEWLINE: {
+      title: pick('セル内の改行で取り込みが停止', 'Embedded newline rejects CSV import'),
+      evidence: pick('架空 CSV に引用符で囲まれたセル内改行があり、検査 r17 が EMBEDDED_NEWLINE を返しました。', 'A quoted cell in the synthetic CSV contains a newline; r17 returns EMBEDDED_NEWLINE.'),
+      hypothesis: pick('r17 の改行拒否ルールが停止につながる可能性があります。引用符の解析自体は改行に対応しています。', 'The r17 newline rejection rule may stop the import. The CSV parser itself supports quoted newlines.'),
+      fix: pick('セル内の改行を許す仕様か確認し、許可するか、該当行・列を説明するエラーにする案です。', 'Confirm whether embedded newlines are allowed; accept them or return an actionable row and column error.'),
+      regression: pick('引用符内の改行、引用符のエスケープ、通常の行末を分けて検査します。', 'Test quoted newlines, escaped quotes and normal record delimiters separately.')
+    },
+    MISSING_COLUMN: {
+      title: pick('必須列の不足で取り込みが停止', 'Missing required column rejects CSV import'),
+      evidence: pick('架空 CSV に必須列がなく、検査 r17 が MISSING_COLUMN を返しました。', 'The synthetic CSV is missing a required column; r17 returns MISSING_COLUMN.'),
+      hypothesis: pick('必須列の名前の不一致や不足が停止につながる可能性があります。実サービスの列仕様は未確認です。', 'A missing or mismatched required column name may stop the import. The production schema is unverified.'),
+      fix: pick('必要な列名をエラーで示し、取り込み前に列の対応を確認する案です。', 'Show the required column name and confirm column mappings before import.'),
+      regression: pick('必須列がある場合とない場合を検査し、明確なエラーが出るか確認します。', 'Test files with and without required columns and verify clear errors.')
+    },
+    INVALID_ENCODING: {
+      title: pick('UTF-8 でないバイトで取り込みが停止', 'Invalid UTF-8 rejects CSV import'),
+      evidence: pick('架空 CSV に不正な UTF-8 バイトを含めると、検査 r17 が INVALID_ENCODING を返しました。', 'The synthetic CSV includes an invalid UTF-8 byte; r17 returns INVALID_ENCODING.'),
+      hypothesis: pick('入力と要求する文字の符号が合わない可能性があります。元ファイルの符号の特定はしていません。', 'The input encoding may differ from the required encoding. The original encoding has not been identified.'),
+      fix: pick('UTF-8 の要件を示し、端末内での変換を案内する案です。無条件に文字を置き換えないようにします。', 'Explain the UTF-8 requirement and offer on-device conversion guidance. Avoid silently replacing characters.'),
+      regression: pick('有効な UTF-8、BOM 付き UTF-8、不正なバイトをそれぞれ検査します。', 'Test valid UTF-8, UTF-8 with a BOM, and invalid byte sequences.')
+    }
+  };
+  const draft = templates[kind];
+  if (!draft) throw new Error('NO_DRAFT');
+  return { ...draft, disclaimer: pick('雲の AI の見立てを固定の見本で再現しています。見立てであり、確定した原因ではありません。開発者の確認が必要です。', 'A fixed sample simulates a cloud AI draft. This is a hypothesis, not a confirmed cause. Developer review is required.') };
+}
+function currentDraft() { return mockCloudDraft(state.syntheticReport, C.importerCode(), state.lang); }
+function draftText() {
+  const d = currentDraft();
+  return ['DRAFT · ' + d.title, d.disclaimer, tr('根拠: ', 'Evidence: ') + d.evidence, tr('見立て: ', 'Hypothesis: ') + d.hypothesis, tr('直し方の案: ', 'Suggested fix: ') + d.fix, tr('回帰の確認: ', 'Regression check: ') + d.regression].join('\n\n');
+}
+function reportPanel() {
+  const d = currentDraft();
+  return `<section class="report"><div class="title-row">${icon('cloud')}<h3>${tr('開発者への報告', 'Developer report')}</h3></div><span class="badge">${tr('下書き · 雲の AI の見本', 'DRAFT · mock cloud AI')}</span><h4>${esc(d.title)}</h4><p>${esc(d.disclaimer)}</p><dl>${[[tr('根拠', 'Evidence'), d.evidence], [tr('見立て', 'Hypothesis'), d.hypothesis], [tr('直し方の案', 'Suggested fix'), d.fix], [tr('回帰の確認', 'Regression check'), d.regression]].map(([a,b]) => `<dt>${a}</dt><dd>${esc(b)}</dd>`).join('')}</dl></section>`;
+}
+function validationDetails() {
+  const labels = { encoding: tr('文字の符号', 'Encoding'), required: tr('必須の列', 'Required columns'), newline: tr('セル内の改行', 'Embedded newline'), duplicate: tr('鍵の重複', 'Duplicate keys') };
+  return `<section class="panel candidates"><div class="title-row">${icon('shield')}<h3>${tr('元の CSV の検査結果', 'Original validation results')}</h3></div><dl class="details">${Object.entries(state.original.checks).map(([key, value]) => `<div><dt>${labels[key]}</dt><dd>${value === 'pass' ? tr('通過', 'Pass') : value === 'fail' ? tr('失敗', 'Fail') : tr('未実行', 'Not run')}</dd></div>`).join('')}</dl><p class="small">${tr('最初の失敗で検査を停止します。未実行は「問題なし」を意味しません。', 'Validation stops at the first failure. “Not run” does not mean “passed”.')}</p></section>`;
+}
+function transferColumns() {
+  return `<div class="transfer"><section class="privacy-card"><h3>${icon('cloud')}${tr('外へ出る物（共有を行う場合）', 'Would leave this device if shared')}</h3><ul><li>${tr('架空の再現 CSV（3 行）', 'Synthetic CSV (3 rows)')}</li><li>${tr('取り込みの検査コード r17', 'Importer validation code r17')}</li><li>${tr('失敗の指紋・検査の結果（元の行番号なし）', 'Fingerprint and validation results (no original row numbers)')}</li><li>${tr('架空の再現だけに基づく報告の下書き', 'Draft report based only on the synthetic repro')}</li></ul><p>${tr('この試作は送信せず、書き出す内容を画面で見せるだけです。', 'This prototype only previews the bundle; it does not send it.')}</p></section><section class="privacy-card"><h3>${icon('lock')}${tr('外へ出ない物', 'Never leaves this device')}</h3><ul><li>${tr('客の CSV 本体', 'Original customer CSV')}</li><li>${tr('元のファイル名・行の中身・元の行番号', 'Original filename, row contents and row numbers')}</li><li>${tr('元の生ログ・端末 AI の候補・担当者の選択', 'Raw original logs, local AI candidates and manual choices')}</li></ul><p>${tr('元の値は報告の下書きにも、共有の束にも入れません。', 'Original values are excluded from the draft and the bundle.')}</p></section></div>`;
+}
+function mainActions() {
+  return `<div class="action-bar"><div class="validator">${icon('shield')}<span>${tr('同じ検査', 'Same validator')} · r17<br><span class="small">${tr('生成・検査・照合は端末内', 'Generation, validation & matching stay local')}</span></span></div><div class="action-buttons">${button('rerun', tr('もう一度検査', 'Run again'), { icon: 'refresh', disabled: !state.synthetic })}${button('generate', tr('架空の再現を作る', 'Create synthetic repro'), { icon: 'spark', primary: !matched(), disabled: !state.source || !state.condition || (state.ai && !state.candidates) || state.busy })}${button('review', tr('共有する物を確かめる', 'Review handoff'), { icon: 'arrow', primary: matched(), disabled: !matched() })}</div></div>`;
+}
+function reviewActions() {
+  return `<div class="action-bar review-actions"><div><label class="confirm"><input type="checkbox" id="approval" ${state.approved ? 'checked' : ''}>${tr('共有する物と出ない物、報告が見立てであることを確かめました', 'I reviewed the sharing boundary and understand the report is a hypothesis.')}</label><span class="small">${tr('次の操作でも送信・保存はしません。共有の束の内容だけを表示します。', 'The next step does not send or save anything. It displays the bundle contents.')}</span></div><div class="action-buttons">${button('back', tr('検査の画面へ戻る', 'Back to evidence'))}${button('bundle', tr('共有の束を書き出す', 'Export sharing bundle'), { icon: 'file', primary: true, disabled: !state.approved || !matched() })}</div></div>`;
+}
+function noticeText() {
+  return ({ loaded: tr('見本の CSV を読み込みました。64 行はすべて架空です。次に、端末の候補または手動の条件を確認してください。', 'Loaded 64 fictional sample rows. Next, review the local suggestions or select a condition manually.'), imported: tr('CSV を端末内に読み込み、検査しました。外へは送っていません。', 'CSV read and validated locally. Nothing was uploaded.'), tooLarge: tr('読み込めませんでした。ファイルの上限は 2 MiB です。', 'Could not load the file: the size limit is 2 MiB.'), readError: tr('ファイルを読み込めませんでした。もう一度選んでください。', 'Could not read the file. Choose it again.'), changed: tr('条件を変更しました。新しい条件で再現を作り直してください。', 'Condition changed. Create a new reproduction.'), aiChanged: tr('端末 AI の設定を変更しました。条件の確認からやり直してください。', 'Local AI setting changed. Review the condition again.'), candidates: tr('固定の見本の候補を表示しました。重複する鍵が選ばれています。', 'Showing the fixed sample suggestions. Duplicate key is selected.'), matched: tr('同じ失敗の指紋を確認しました。共有する物を確かめられます。', 'Matching failure fingerprints confirmed. You can review the handoff.'), mismatch: tr('指紋が一致しないため、共有前の画面へは進めません。条件を見直してください。', 'Handoff is blocked because the fingerprints differ. Review the condition.'), busy: tr('ファイルを端末内で読み込んでいます…', 'Reading the file locally…') })[state.notice] || '';
+}
+function render() {
+  document.documentElement.lang = state.lang;
+  document.title = tr('CaseTwin — 失敗の指紋', 'CaseTwin — Failure fingerprint');
+  const review = state.view === 'review';
+  const step = review ? '05' : state.synthetic ? '04' : state.candidates || !state.ai && state.condition ? '03' : state.source ? '02' : '01';
+  document.getElementById('app').innerHTML = `<header class="top"><div class="brand">${icon('logo')}CaseTwin<small>C3 / ${tr('失敗の指紋', 'Failure fingerprint')}</small></div><div class="head-actions"><div class="language" role="group" aria-label="${tr('表示言語', 'Language')}"><button type="button" data-action="ja" aria-pressed="${state.lang === 'ja'}">日本語</button><button type="button" data-action="en" aria-pressed="${state.lang === 'en'}">EN</button></div><button type="button" class="settings" data-action="settings" aria-label="${tr('設定', 'Settings')}">${icon('settings')}<span class="settings-label">${tr('設定', 'Settings')}</span></button></div></header>
+  ${state.lang === 'ja' ? '<aside class="guide"><div class="guide-inner">' + icon('laptop') + '<span>これは試作です。何から押すか: ① 見本の CSV を読み込む ② 端末の AI の候補を見る ③『架空の再現を作る』を押す ④ 同じ検査の結果（失敗の指紋）を見る ⑤『共有する物を確かめる』で渡す前の画面を見る。押してもお金はかからず、何も外へ送られません（この画面の中だけで動きます）。</span></div></aside>' : ''}
+  <main class="shell"><div class="page-heading"><div><div class="eyebrow">${review ? tr('共有前の確認', 'REVIEW / HANDOFF') : tr('端末内で再現を確かめる', 'LOCAL REPRODUCTION WORKSPACE')}</div><h1>${review ? tr('渡す前に同じ失敗を確かめる。', 'Review the matched failure.') : tr('ひとつの失敗。ふたつの入力。', 'One failure. Two matching inputs.')}</h1><p class="subheading">${review ? tr('元の CSV は端末の中に。開発者へは要る再現物だけ。', 'Keep the original on this device. Give developers the reproduction they need.') : tr('客のデータを持ち出さず、開発者が試せる小さな再現へ。', 'Turn a private customer failure into a small, shareable reproduction.')}</p></div><div class="step-count">${tr('手順', 'STEP')} <strong>${step}</strong> / 05 · ${tr('動作する試作', 'Interactive prototype')}</div></div>
+  <div class="environment"><div class="boundary"><span>${icon('laptop')}<strong>LOCAL</strong> ${tr('CSV の分析・生成・検査', 'CSV analysis, synthesis & validation')}</span><span>${icon('cloud')}<strong>CLOUD</strong> ${tr('架空の再現とコードだけ · 今は見本', 'Synthetic repro + code only · simulated')}</span></div><div class="ai-switch"><span>${tr('試作用 · この端末に AI がある:', 'Simulation · Local AI available:')}</span><div class="switch" role="group" aria-label="${tr('この端末に AI がある', 'Local AI available')}"><button type="button" data-action="ai-yes" aria-pressed="${state.ai}">${tr('はい', 'Yes')}</button><button type="button" data-action="ai-no" aria-pressed="${!state.ai}">${tr('いいえ', 'No')}</button></div></div></div>
+  ${state.notice ? `<div class="toast ${['tooLarge', 'readError', 'mismatch'].includes(state.notice) ? 'error' : ''}">${noticeText()}</div>` : ''}
+  <div class="workspace ${review ? 'review-grid' : ''}"><div class="side-stack">${originalPanel(review)}${review ? validationDetails() : candidatesPanel()}</div>${fingerprintPanel(review)}<div class="side-stack">${syntheticPanel(review)}${review ? '' : generatorPanel()}</div></div>${review ? transferColumns() + reviewActions() : mainActions()}</main>
+  <footer class="footer"><span>${icon('lock')}${tr('客の CSV は、この端末から出ません。', 'Customer CSV stays on this device.')}</span><span class="quiet">${tr('AI は見本の答え / 外部通信・送信・課金なし', 'AI responses are simulated / No network, sending or charges')}</span></footer>`;
+}
+function openSettings() {
+  const dialog = document.getElementById('settings-dialog');
+  dialog.innerHTML = `<div class="dialog-head"><h2 id="settings-title">${tr('設定と動作の範囲', 'Settings & scope')}</h2>${button('close-settings', icon('x') + `<span class="visually-hidden">${tr('閉じる', 'Close')}</span>`)}</div><div class="dialog-content"><span class="badge">${tr('試作 · 全処理がこの画面の中', 'Prototype · everything stays in this page')}</span><h3>${tr('本当に動く所 / 見本の所', 'Live code / simulated AI')}</h3><p>${tr('CSV の読み込み、架空の生成、検査、指紋の照合は JavaScript で動きます。端末の候補と雲の報告は固定の見本です。AI・Firebase・外部の API は呼びません。データはメモリ内だけにあり、ページを閉じる・再読み込みすると消えます。', 'CSV reading, generation, validation and matching use real JavaScript. Local suggestions and cloud drafts are fixed samples. No AI, Firebase or external API is called. Data lives in memory and clears on reload or close.')}</p><h3>${tr('AI エージェント向け', 'For AI agents')}</h3><p>${tr('以下は設計上の道具の一覧です。この試作には呼び出し口を実装していません。', 'These are planned tools, listed for review only. This prototype exposes no callable agent endpoints.')}</p><dl class="details"><div><dt><code>prepare_repro</code></dt><dd>${tr('端末内で再現を作る頼み。承認や共有は行いません。', 'Request local reproduction preparation. Does not approve or share.')}</dd></div><div><dt><code>get_repro</code></dt><dd>${tr('人が承認した架空の再現物だけを返す設計。未承認の物は返しません。', 'Designed to return only a human-approved synthetic reproduction; rejects unapproved objects.')}</dd></div><div><dt><code>get_validation_report</code></dt><dd>${tr('失敗の指紋と検査結果だけを返す設計。元の値・元の行番号は含めません。', 'Designed to return fingerprints and validation results only, without original values or row numbers.')}</dd></div></dl><div class="privacy-card"><h3>${icon('lock')}${tr('口から決して出ない物', 'Never exposed by these tools')}</h3><p>${tr('客の CSV・元のファイル名・行の中身・元の行番号・生ログ・端末 AI の候補。エージェントからの要求で共有の承認を省略できない設計です。', 'Customer CSV, original filename, row contents, original row numbers, raw logs and local AI notes. Agent requests must not bypass human approval.')}</p></div><h3>${tr('検査 r17 の範囲', 'Validator r17 scope')}</h3><p>${tr('UTF-8 → CSV の構造 → 必須列 customer_id / name → セル内改行 → customer_id の重複の順に検査し、最初の失敗で止まります。行番号はヘッダーを除きます。指紋は種類・列・条件で、同じ版での一致を確認します。', 'Checks UTF-8, CSV structure, required columns customer_id / name, embedded newlines, then duplicate customer_id, stopping at the first failure. Row numbers exclude the header. Fingerprints compare error, field and condition using the same validator version.')}</p><p>${tr('実サービスへの書き込みや本番の取り込みは実装していません。Firebase AI Logic の利用可否・API・端末対応は、この資料だけでは未確認です。', 'No production writes or real service importer is implemented. Firebase AI Logic availability, APIs and device support are unverified from the supplied materials.')}</p></div>`;
+  dialog.showModal();
+}
+function showBundle() {
+  if (!state.approved || !matched() || state.view !== 'review') return;
+  const bundle = C.buildBundle(state.original, state.synthetic, state.approved, draftText());
+  const dialog = document.getElementById('bundle-dialog');
+  dialog.innerHTML = `<div class="dialog-head"><h2 id="bundle-title">${tr('共有の束のプレビュー', 'Sharing bundle preview')}</h2>${button('close-bundle', icon('x') + `<span class="visually-hidden">${tr('閉じる', 'Close')}</span>`)}</div><div class="dialog-content"><span class="badge">${tr('表示のみ · 送信なし · 保存なし', 'Preview only · not sent · not saved')}</span><p>${tr('これが「書き出す」内容です。この試作は画面表示で止まります。自動送信・ファイルのダウンロードは行いません。', 'This is the export content. The prototype stops at this preview: no automatic sending or file download.')}</p><ul class="bundle-files">${Object.entries(bundle.files).map(([name, file]) => `<li><code>${name}</code><span>${file.encoding} · ${new TextEncoder().encode(file.content).length.toLocaleString()} B</span></li>`).join('')}</ul><label class="field-label" for="bundle-json">${tr('共有の束の全内容（JSON）', 'Full bundle contents (JSON)')}</label><textarea id="bundle-json" readonly spellcheck="false">${esc(JSON.stringify(bundle, null, 2))}</textarea><p class="small">${tr('validation.json は元の値・行番号を含みません。不正な UTF-8 の再現は Base64 を復号すると元のバイト列になります。', 'validation.json excludes original values and row numbers. Decode Base64 to recover the exact bytes for invalid UTF-8 reproductions.')}</p></div>`;
+  dialog.showModal();
+}
+function invalidate() { state.synthetic = null; state.syntheticReport = null; state.approved = false; state.view = 'main'; }
+function resetSource() { invalidate(); state.source = null; state.original = null; state.filename = ''; state.candidates = false; state.condition = ''; }
+function refreshNotice() { render(); announce(noticeText()); }
+function action(name) {
+  if (name === 'settings') { openSettings(); return; }
+  if (name === 'close-settings') { document.getElementById('settings-dialog').close(); return; }
+  if (name === 'close-bundle') { document.getElementById('bundle-dialog').close(); return; }
+  if (name === 'bundle') { showBundle(); return; }
+  if (name === 'ja' || name === 'en') { state.lang = name; render(); return; }
+  if (name === 'sample') {
+    loadToken++; resetSource(); state.busy = false; state.source = C.makeSample(); state.filename = 'fictional-demo.csv'; state.original = C.validate(state.source); state.notice = 'loaded';
+  } else if (name === 'ai-yes' || name === 'ai-no') {
+    const next = name === 'ai-yes'; if (next === state.ai) return;
+    state.ai = next; state.candidates = false; state.condition = ''; invalidate(); state.notice = 'aiChanged';
+  } else if (name === 'candidates') {
+    if (!state.ai || !state.source || state.busy) return;
+    state.candidates = true; state.condition = 'duplicate'; invalidate(); state.notice = 'candidates';
+  } else if (name === 'generate') {
+    if (!state.source || !state.condition || state.busy || state.ai && !state.candidates) return;
+    invalidate(); state.synthetic = C.generateSynthetic(state.source, state.condition); state.original = C.validate(state.source); state.syntheticReport = C.validate(state.synthetic.data); state.notice = matched() ? 'matched' : 'mismatch';
+  } else if (name === 'rerun') {
+    if (!state.source || !state.synthetic) return;
+    state.original = C.validate(state.source); state.syntheticReport = C.validate(state.synthetic.data); state.approved = false; state.notice = matched() ? 'matched' : 'mismatch';
+  } else if (name === 'review') {
+    if (!matched()) return;
+    state.view = 'review'; state.approved = false; state.notice = '';
+  } else if (name === 'back') { state.view = 'main'; state.approved = false; state.notice = ''; }
+  refreshNotice();
+  if (name === 'review' || name === 'back') { const title = document.querySelector('h1'); title.setAttribute('tabindex', '-1'); title.focus(); window.scrollTo({ top: 0, behavior: 'smooth' }); }
+}
+document.addEventListener('click', event => {
+  const target = event.target.closest('[data-action]');
+  if (!target || target.disabled) return;
+  const name = target.dataset.action;
+  action(name);
+  if (!['settings', 'bundle', 'close-settings', 'close-bundle', 'review', 'back'].includes(name)) document.querySelector(`[data-action="${name}"]`)?.focus();
+});
+document.addEventListener('change', async event => {
+  if (event.target.id === 'condition') {
+    state.condition = event.target.value; invalidate(); state.notice = 'changed'; refreshNotice(); document.getElementById('condition')?.focus();
+  } else if (event.target.id === 'approval') {
+    state.approved = event.target.checked && matched(); render(); document.getElementById('approval')?.focus();
+  } else if (event.target.id === 'csv-file') {
+    const file = event.target.files[0]; if (!file) return;
+    const token = ++loadToken; resetSource(); state.busy = true; state.notice = 'busy'; refreshNotice();
+    if (file.size > 2 * 1024 * 1024) { state.busy = false; state.notice = 'tooLarge'; refreshNotice(); return; }
+    try {
+      const bytes = new Uint8Array(await file.arrayBuffer());
+      if (token !== loadToken) return;
+      state.source = C.readBytes(bytes); state.original = C.validate(state.source); state.filename = file.name; state.notice = 'imported';
+    } catch (_) { if (token !== loadToken) return; state.notice = 'readError'; }
+    state.busy = false; refreshNotice();
+  }
+});
+render();
+</script>
+</body>
+</html>
