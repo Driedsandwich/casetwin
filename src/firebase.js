@@ -5,10 +5,11 @@ export async function firebaseApp() {
     const { initializeApp } = await import('firebase/app');
     const app = initializeApp(config.firebase);
     if (!config.demo) {
-      const { initializeAppCheck, ReCaptchaV3Provider } = await import('firebase/app-check');
-      // Deliberately boolean-only and dev-only. No debug token is stored in this repository.
-      if (import.meta.env.DEV && globalThis.CASETWIN_APP_CHECK_DEBUG === true) globalThis.FIREBASE_APPCHECK_DEBUG_TOKEN = true;
-      initializeAppCheck(app, { provider: new ReCaptchaV3Provider(config.siteKey), isTokenAutoRefreshEnabled: true });
+      const { initializeAppCheck, ReCaptchaEnterpriseProvider } = await import('firebase/app-check');
+      // Dev-only. A registered debug value may live in the ignored local config; none is stored in this repository.
+      const debug = globalThis.CASETWIN_APP_CHECK_DEBUG;
+      if (import.meta.env.DEV && (debug === true || (typeof debug === 'string' && /^[0-9a-f-]{36}$/i.test(debug)))) globalThis.FIREBASE_APPCHECK_DEBUG_TOKEN = debug;
+      initializeAppCheck(app, { provider: new ReCaptchaEnterpriseProvider(config.siteKey), isTokenAutoRefreshEnabled: true });
     }
     return app;
   })();
