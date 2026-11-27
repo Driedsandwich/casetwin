@@ -51,7 +51,7 @@ function validationPanel() {
 function matchCard(privateData) {
   const report = privateData ? state.original : state.syntheticReport;
   let label = t('awaiting');
-  if (report) label = report.row ? privateData ? `${t('row')} ${report.row}` : syntheticRowLabel(report.row) : t('wholeFile');
+  if (report) label = report.row ? `${t('row')} ${report.row}` : t('wholeFile');
   return `<div class="match-card"><span class="small">${t(privateData ? 'originalMatch' : 'syntheticMatch')}</span><strong>${esc(label)}</strong>${report ? `<span class="badge ${report.ok ? 'pass' : 'fail'}">${report.ok ? 'PASS' : 'FAIL'}</span><br><code>${esc(report.fingerprint?.kind || '—')}</code>` : ''}${state.view === 'review' ? `<dl class="details"><div><dt>CSV</dt><dd>${esc(privateData ? state.filename : 'repro-synthetic.csv')}</dd></div><div><dt>${t('validator')}</dt><dd>r17</dd></div></dl>` : ''}</div>`;
 }
 function fingerprintPanel() {

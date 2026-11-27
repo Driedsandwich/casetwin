@@ -111,8 +111,8 @@ test('Cloud draft regeneration requires fresh consent and sends the same fiction
 
     const preview = JSON.parse(document.querySelector('.payload-preview pre').textContent);
     assert.equal(matchLabel(), 'Row 3');
-    assert.equal(japaneseLabel, matchLabel());
-    assert.equal(preview.syntheticRows.failureRow, matchLabel());
+    assert.equal(japaneseLabel, '行 3');
+    assert.equal(preview.syntheticRows.failureRow, 'Row 3');
     assert.deepEqual(preview.syntheticRows.relatedRows, ['Row 2', 'Row 3']);
     const drafts = prompts.filter(entry => entry.mode === 'only_in_cloud');
     assert.equal(drafts.length, 3);
