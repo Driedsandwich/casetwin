@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite';
 import { existsSync } from 'node:fs';
 import { resolve } from 'node:path';
+import { thirdPartyNotices } from './build/third-party-notices.js';
 // Missing optional private settings are served as an empty script in Demo mode.
 const emptyConfig = '/* No private Firebase configuration. CaseTwin uses Demo mode. */\n';
 export default defineConfig({
@@ -16,7 +17,7 @@ export default defineConfig({
     generateBundle() {
       if (!existsSync(resolve('public/firebase-config.js'))) this.emitFile({ type: 'asset', fileName: 'firebase-config.js', source: emptyConfig });
     }
-  }],
+  }, thirdPartyNotices()],
   build: {
     chunkSizeWarningLimit: 500,
     rollupOptions: {

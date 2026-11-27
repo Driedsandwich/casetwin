@@ -37,7 +37,7 @@ All real inference uses **`firebase/ai` from exactly `firebase@13.4.0`**. No dir
 
 A defensive capability guard runs before private model initialization. In the installed 13.4.0 browser code, a missing `LanguageModel` means no Chrome adapter is created, and the dispatcher has a cloud path without an adapter. CaseTwin therefore refuses private inference before invoking the SDK when that API is absent. Availability detection only checks the browser API's presence; inference and device initialization still go through Firebase AI Logic.
 
-Local calls, including report rewrites that may run locally, are serialized. The first candidate call displays preparation guidance. The supplied observation was that Chrome 158 can run `ONLY_ON_DEVICE` with dummy Firebase values, taking about 11 seconds on the first call and returning trailing blank lines. This observation was **not independently reproduced here**. Responses are trimmed. While preparing, or after unavailable/failed/invalid local inference, the agent can choose a condition manually. Private data has no cloud fallback.
+Local calls, including report rewrites that may run locally, are serialized. The first candidate call displays preparation guidance. Chrome 158 on the configured Firebase project ran `ONLY_ON_DEVICE` in about 12 seconds and returned four candidates with confidence values (verified November 26 and 27, 2026). Responses are trimmed. While preparing, or after unavailable/failed/invalid local inference, the agent can choose a condition manually. Private data has no cloud fallback.
 
 ## Demo mode
 
@@ -49,7 +49,7 @@ Missing or incomplete configuration selects Demo mode and displays **Demo mode �
 - Export is a real local JSON download. MCP can serve a clearly fictional approved fixture.
 - Generation, all four checks and fingerprint comparison run real JavaScript in both modes.
 
-Demo rewrites are simulations of the workflow, not a claim that the `PREFER_ON_DEVICE` production route ran. A browser may need to prepare or download its on-device model. Browser support and actual inference latency on a particular machine remain unverified.
+Demo rewrites are simulations of the workflow, not a claim that the `PREFER_ON_DEVICE` production route ran. A browser may need to prepare or download its on-device model. On-device model availability and latency vary by browser and device; the judge walkthrough records the verified Chrome 158 result.
 
 ## Configure Firebase locally
 
@@ -58,14 +58,30 @@ Only [`public/firebase-config.example.js`](public/firebase-config.example.js), w
 1. Copy `public/firebase-config.example.js` to `public/firebase-config.js`. The real file is ignored by git. Fill the Firebase Web app settings and `appCheckSiteKey` locally. Set `cloudModel` to a text model enabled for your Firebase AI Logic project. There is no guessed production model name in this repository.
 2. In your Firebase project, configure Firebase AI Logic for the Gemini Developer API backend, Google Authentication and a Firestore database. Enable Google sign-in and authorize the intended app domain.
 3. Register the web app for App Check with Fraud Defense (formerly reCAPTCHA Enterprise; the Firebase console marks reCAPTCHA v3 Classic as deprecated). Create a score-based Web site key in Google Cloud listing your intended domains and place it in `appCheckSiteKey`. The app initializes `ReCaptchaEnterpriseProvider` with automatic token refresh before configured Firebase calls. Configure App Check enforcement for the relevant services in your project.
-4. Apply `firestore.rules` to the intended project before using database storage. `firebase.json` references the rules and Vite build output. No project ID or `.firebaserc` with a real value is included. Deployment and rule application are manual operator tasks and were not performed here.
+4. Apply `firestore.rules` to the intended project before using database storage. `firebase.json` references the rules and Vite build output. No project ID or `.firebaserc` with a real value is included. Firestore rules were configured for the live project described below. Hosting deployment remains **not verified**.
 5. Restart Vite after changing the local config. Verify that the Demo banner is gone. Sign in through Settings. Review the exact cloud payload before the first report request.
 
 For **development only**, set `window.CASETWIN_APP_CHECK_DEBUG` in your ignored local configuration file before loading the app: either `true` (the SDK generates a value you then register) or a debug value you generated and registered in the Firebase console. Vite's `import.meta.env.DEV` guard is required before the App Check debug hook is enabled. The SDK prints the active debug value to the browser console, so keep console logs out of anything you publish. No debug value is supplied here. Production builds remove this development branch.
 
 When the optional private config is absent, Vite serves or emits an empty configuration script and bootstrap continues into Demo mode. The source repository still contains only the empty-value example. Firebase Web configuration is necessarily delivered to the browser in a configured deployment; git exclusion is repository hygiene, not an authorization mechanism. Authentication, App Check and Firestore rules supply the service boundaries.
 
-Exact console navigation, live project enablement, quotas, model availability and end-to-end credentials are **unverified** from the supplied materials. No live Firebase operation was attempted during implementation.
+## Try CaseTwin (judge walkthrough)
+
+Open **[URL]** in Chrome, then follow these steps:
+
+1. Choose **Analyze on this device** and wait for four condition candidates with confidence values (about 12 seconds on the tested device).
+2. Create the synthetic reproduction and confirm Row 3 reports `DUPLICATE_KEY`, `customer_id`, and `r17`.
+3. Review the sharing disclosure and verify the cloud input contains only the fictional reproduction and importer details.
+4. Generate the cloud draft and confirm **Actual inference source: in_cloud** and the UI's Row 2 and Row 3 labels.
+5. Switch to Japanese; confirm “この下書きは英語で作られました” and “日本語で作り直す” appear.
+
+Chrome without an available on-device model may require choosing a condition manually.
+
+## Live Firebase verification
+
+On November 26 and 27, 2026, the production Vite build (`dist`) was exercised against a real Firebase project configured for Firebase AI Logic with the Gemini Developer API, cloud model `gemini-3.5-flash-lite`, App Check with reCAPTCHA Enterprise, Google Authentication, and Firestore with rules. Chrome 158 on-device inference returned four conditions with confidence values in about 12 seconds and **Actual inference source: on_device**. The fictional reproduction showed Row 3, `DUPLICATE_KEY`, `customer_id`, and `r17`; the sharing boundary was reviewed; cloud drafting returned **Actual inference source: in_cloud** and referred to Row 2 and Row 3 using the UI's row labels. Switching to Japanese showed “この下書きは英語で作られました” and “日本語で作り直す”.
+
+**Save bundle to Firestore** (requires Google sign-in) and the bundle export file have not been exercised against the live project. Browser rendering outside this walkthrough, keyboard/screen-reader behavior, and other browsers/devices are **not verified**. Hosting deployment is **not verified**.
 
 ## Sharing and storage boundary
 
@@ -121,7 +137,7 @@ npm run preview
 - r17 checks UTF-8, CSV structure, required `customer_id` and `name`, embedded newlines, then duplicate keys. It stops at the first failure. `not_run` is not a pass. Rows are data records excluding the header.
 - The generator covers duplicate keys, embedded newlines in known columns, either required column missing and invalid UTF-8. Arbitrary extra-column failures, malformed CSV and the row-limit failure may not reproduce; mismatches block handoff.
 - A matching failure fingerprint can have a different root cause. Cloud reports are hypotheses requiring developer review. Model outputs do not generate the CSV or determine validation success.
-- Browser rendering, keyboard/screen-reader behavior, actual Chrome inference, Google popup login, reCAPTCHA/App Check and deployed Firestore rules remain **unverified** in this environment. Node DOM tests do not establish visual correctness. No browser or screenshot was used.
+- Chrome 158 actual on-device and cloud inference plus the synthetic reproduction and sharing boundary were verified as detailed above. Google sign-in, App Check token acceptance, and Firestore rule enforcement beyond the exercised project setup are **not verified**. Node DOM tests do not establish visual correctness.
 - The initial npm installation reported five high-severity dependency findings. Zod was updated to the MCP-supported 4.x line and the Node-side `@grpc/grpc-js` dependency was overridden to the patched 1.14.x-or-later 1.x line while preserving Firebase 13.4.0. The final npm installation audit reported **0 vulnerabilities**. The browser app uses Firestore Lite; the Node Firestore backend is not used by MCP.
 - No web search, browser automation, external app write, message, deployment, git commit, YouTube fetch or X fetch was performed. Only npm installation used external network access.
 

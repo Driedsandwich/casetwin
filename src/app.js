@@ -98,7 +98,7 @@ export function render() {
   <main class="shell"><div class="page-heading"><div><div class="eyebrow">${review ? 'REVIEW / HANDOFF' : t('step')}</div><h1 tabindex="-1">${t(review ? 'reviewHeadline' : 'headline')}</h1><p class="subheading">${t(review ? 'reviewSubheading' : 'subheading')}</p></div></div>
   <div class="environment"><div class="boundary"><span>${icon('laptop')}<strong>LOCAL</strong> · ${t('localBoundary')}</span><span>${icon('cloud')}<strong>CLOUD</strong> · ${t('cloudBoundary')}</span></div></div>
   ${state.notice || state.work ? `<div class="toast ${['tooLarge', 'readError', 'cloudError'].includes(state.notice) ? 'error' : ''}" role="status">${esc(t(state.work || state.notice))}</div>` : ''}
-  <div class="workspace ${review ? 'review-grid' : ''}"><div class="side-stack">${originalPanel()}${review ? validationPanel() : candidatesPanel()}</div>${fingerprintPanel()}<div class="side-stack">${syntheticPanel()}${review ? '' : generatorPanel()}</div></div>${review ? transfer() + reviewActions() : actions()}</main><footer class="footer"><span>${icon('lock')}${t('privacyFooter')}</span><span>${t('scopeFooter')}</span></footer>`;
+  <div class="workspace ${review ? 'review-grid' : ''}"><div class="side-stack">${originalPanel()}${review ? validationPanel() : candidatesPanel()}</div>${fingerprintPanel()}<div class="side-stack">${syntheticPanel()}${review ? '' : generatorPanel()}</div></div>${review ? transfer() + reviewActions() : actions()}</main><footer class="footer"><span>${icon('lock')}${t('privacyFooter')}</span><span>${t('scopeFooter')}</span><a href="/THIRD_PARTY_NOTICES.txt">Third-party notices</a></footer>`;
 }
 function refresh() {
   render();
