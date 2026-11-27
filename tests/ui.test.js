@@ -19,11 +19,15 @@ test('English is default and Demo mode is visible with no Japanese guide', () =>
   assert.ok(document.body.textContent.includes('Demo mode — cloud steps are simulated'));
   assert.equal(document.querySelector('.guide'), null);
   assert.equal(state.source.rows.length, 64);
+  assert.equal(document.querySelector('button.primary:not(:disabled)').dataset.action, 'analyze');
   assert.ok(document.querySelector('[data-action="review"]').disabled);
 });
 test('Manual workflow creates a real match and presents disclosure before local export', async () => {
-  await action('manual'); change('condition', 'duplicate'); await action('generate');
+  await action('manual'); change('condition', 'duplicate');
+  assert.equal(document.querySelector('button.primary:not(:disabled)').dataset.action, 'generate');
+  await action('generate');
   assert.equal(matched(), true);
+  assert.equal(document.querySelector('button.primary:not(:disabled)').dataset.action, 'review');
   assert.equal(document.querySelector('.result').tagName, 'DIV');
   assert.ok(document.querySelector('.result').textContent.includes('Same failure reproduced'));
   await action('review');

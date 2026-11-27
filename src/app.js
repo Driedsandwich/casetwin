@@ -3,6 +3,7 @@ import { config } from './config.js';
 import { translate } from './i18n.js';
 import { candidateOutcome, localSummary } from './inference-policy.js';
 import { createShareBundle, createCloudPayload, demoReport, syntheticRowLabel } from './sharing.js';
+import { renderReportText } from './report-text.js';
 
 const sample = C.makeSample();
 export const state = { lang: 'en', source: sample, filename: 'fictional-demo.csv', original: C.validate(sample), synthetic: null, syntheticReport: null, condition: '', view: 'main', approved: false, cloudApproved: false, report: null, candidates: [], aiStatus: 'idle', aiReason: null, inferenceSource: null, progress: null, notice: '', work: '', signedIn: false };
@@ -37,13 +38,14 @@ function conditionPicker() {
 }
 function candidatesPanel() {
   const pending = ['preparing', 'analyzing'].includes(state.aiStatus);
+  const analyzeNext = !state.condition && state.aiStatus === 'idle';
   let info = pending ? t(state.aiStatus) : t('candidateHelp');
   if (state.aiStatus === 'manual') info = state.aiReason ? `${t(state.aiReason)} ${t('manualNote')}` : t('manualNote');
-  return `<section class="panel candidates"><div class="title-row">${icon('spark')}<h3>${t('localCandidates')}</h3></div>
-  <span class="badge">ONLY_ON_DEVICE</span><p class="small" role="status">${info}${pending && state.progress !== null ? ` (${state.progress}%)` : ''}</p>
+  return `<section class="panel candidates"><div class="candidate-heading"><div class="title-row">${icon('spark')}<h3>${t('localCandidates')}</h3></div><span class="badge">ONLY_ON_DEVICE</span></div>
+  <p class="small" role="status">${info}${pending && state.progress !== null ? ` (${state.progress}%)` : ''}</p>
   ${state.candidates.length ? `<ul class="candidate-list">${state.candidates.map(item => `<li class="${item.confidence === 'likely' ? 'chosen' : ''}">${icon(item.confidence === 'likely' ? 'check' : 'code')}<span>${t(item.condition)} · ${t(item.confidence)}</span></li>`).join('')}</ul>` : ''}
   <p class="source-label">${esc(inferenceLabel({ inferenceSource: state.inferenceSource }))}</p>
-  <div class="candidate-actions">${btn('analyze', 'analyze', { disabled: !state.source || pending || busy(), symbol: 'spark' })}${btn('manual', 'manual', { disabled: !state.source || busy() })}</div>${conditionPicker()}</section>`;
+  <div class="candidate-actions">${btn('analyze', 'analyze', { primary: analyzeNext, disabled: !state.source || pending || busy(), symbol: 'spark' })}${btn('manual', 'manual', { disabled: !state.source || busy() })}</div>${conditionPicker()}</section>`;
 }
 function validationPanel() {
   return `<section class="panel candidates"><div class="title-row">${icon('shield')}<h3>${t('validation')}</h3></div><dl class="details">${Object.entries(state.original?.checks || {}).map(([key, value]) => `<div><dt>${t(key)}</dt><dd><span class="check-${value}">${t(value)}</span></dd></div>`).join('')}</dl><p class="small">${t('checksNote')}</p></section>`;
@@ -52,21 +54,23 @@ function matchCard(privateData) {
   const report = privateData ? state.original : state.syntheticReport;
   let label = t('awaiting');
   if (report) label = report.row ? `${t('row')} ${report.row}` : t('wholeFile');
-  return `<div class="match-card"><span class="small">${t(privateData ? 'originalMatch' : 'syntheticMatch')}</span><strong>${esc(label)}</strong>${report ? `<span class="badge ${report.ok ? 'pass' : 'fail'}">${report.ok ? 'PASS' : 'FAIL'}</span><br><code>${esc(report.fingerprint?.kind || '—')}</code>` : ''}${state.view === 'review' ? `<dl class="details"><div><dt>CSV</dt><dd>${esc(privateData ? state.filename : 'repro-synthetic.csv')}</dd></div><div><dt>${t('validator')}</dt><dd>r17</dd></div></dl>` : ''}</div>`;
+  return `<div class="match-card"><span class="small">${t(privateData ? 'originalMatch' : 'syntheticMatch')}</span><strong>${esc(label)}</strong>${report ? `<span class="badge ${report.ok ? 'pass' : 'fail'}">${report.ok ? 'PASS' : 'FAIL'}</span><code>${esc(report.fingerprint?.kind || '—')}</code>` : ''}${state.view === 'review' ? `<dl class="details"><div><dt>CSV</dt><dd>${esc(privateData ? state.filename : 'repro-synthetic.csv')}</dd></div><div><dt>${t('validator')}</dt><dd>r17</dd></div></dl>` : ''}</div>`;
 }
 function fingerprintPanel() {
   const fp = state.original?.fingerprint;
   return `<section class="panel fingerprint"><div class="fingerprint-head"><h2>${t('fingerprint')}</h2></div><div class="fingerprint-body"><div class="error-kind ${fp ? '' : 'idle'}">${esc(fp?.kind || t(state.original?.ok ? 'noFailure' : 'noSource'))}</div>
   <dl class="finger-fields"><div><dt>${t('field')}</dt><dd>${esc(fp?.field || '—')}</dd></div><div><dt>${t('condition')}</dt><dd>${fp ? esc(t(fp.condition)) : '—'}</dd></div><div><dt>${t('validator')}</dt><dd>r17 <span class="badge">${t('sameCode')}</span></dd></div></dl>
-  <div class="matches">${matchCard(true)}${matchCard(false)}</div><div class="join" aria-hidden="true"><svg viewBox="0 0 300 42"><path d="M75 0v9q0 10 18 10h39q18 0 18 12M225 0v9q0 10-18 10h-39q-18 0-18 12M150 28v8m-5-5 5 6 5-6" fill="none" stroke="#8c93a3" stroke-width="1.5"/></svg></div>
+  <div class="matches">${matchCard(true)}${matchCard(false)}</div>
   <div class="result ${state.synthetic ? matched() ? 'success' : 'failure' : ''}" role="status"><strong>${icon(state.synthetic ? matched() ? 'check' : 'alert' : 'shield')}${t(state.synthetic ? matched() ? 'sameFailure' : 'differentFailure' : 'compare')}</strong><p>${t(state.synthetic ? matched() ? 'matchDetail' : 'mismatchDetail' : 'waitingDetail')}</p></div><p class="finger-caption">${t('caption')}</p></div></section>`;
 }
 function reportPanel() {
   const languageNotice = draftLanguageMismatch()
     ? `<p class="note">${t(state.report.language === 'ja' ? 'draftInJapanese' : 'draftInEnglish')}</p>${config.demo ? btn('draft', 'regenerateDraft', { disabled: busy() }) : ''}`
     : '';
+  const source = state.report?.inferenceSource;
+  const sourceStyle = source === 'in_cloud' ? 'cloud' : source === 'on_device' ? 'device' : 'neutral';
   return `<section class="report"><div class="title-row">${icon('cloud')}<h3>${t('draft')}</h3></div><span class="badge">${t('draftBadge')}</span>
-  ${state.report ? `<p class="source-label">${esc(inferenceLabel(state.report))}</p>${languageNotice}<div class="report-text" lang="${esc(state.report.language)}">${esc(state.report.text)}</div><p class="hypothesis">${t('hypothesis')}</p><p class="small">${t('rewriteNote')}</p>${btn('rewrite', 'rewrite', { disabled: busy(), symbol: 'spark' })}` : `<p class="note">${t('cloudPending')}</p>`}</section>`;
+  ${state.report ? `<p class="report-source ${sourceStyle}">${icon(source === 'in_cloud' ? 'cloud' : source === 'on_device' ? 'laptop' : 'code')}${esc(inferenceLabel(state.report))}</p>${languageNotice}<div class="report-text" lang="${esc(state.report.language)}"></div><p class="hypothesis">${t('hypothesis')}</p><p class="small">${t('rewriteNote')}</p>${btn('rewrite', 'rewrite', { disabled: busy(), symbol: 'spark' })}` : `<p class="note">${t('cloudPending')}</p>`}</section>`;
 }
 function syntheticPanel() {
   return `<section class="panel panel-pad"><div class="panel-head">${icon('file')}<div><h2>${t('synthetic')}</h2><span class="badge">${t('shareable')}</span></div></div>
@@ -77,16 +81,19 @@ function generatorPanel() {
   return `<section class="panel generator"><div class="title-row">${icon('settings')}<h3>${t('generator')}</h3></div><p>${t('generatorText')}</p><div class="algorithm"><span>${t('condition')}</span>→<span>${t('synthetic')}</span>→<span>r17</span></div></section>`;
 }
 function actions() {
-  return `<div class="action-bar"><div class="validator">${icon('shield')}<span>${t('sameValidator')}<br><span class="small">${t('localWork')}</span></span></div><div class="action-buttons">${btn('rerun', 'run', { disabled: !state.synthetic || busy(), symbol: 'refresh' })}${btn('generate', 'create', { primary: !matched(), disabled: !state.source || !state.condition || busy(), symbol: 'spark' })}${btn('review', 'review', { primary: matched(), disabled: !matched() || busy(), symbol: 'arrow' })}</div></div>`;
+  const canCreate = Boolean(state.source && state.condition);
+  const canReview = matched();
+  return `<div class="action-bar evidence-actions"><div class="validator">${icon('shield')}<span class="validator-copy"><span>${t('sameValidator')}</span> <span class="small">${t('localWork')}</span></span></div><div class="action-buttons">${btn('rerun', 'run', { disabled: !state.synthetic || busy(), symbol: 'refresh' })}${btn('generate', 'create', { primary: canCreate && !canReview, disabled: !canCreate || busy(), symbol: 'spark' })}${btn('review', 'review', { primary: canReview, disabled: !canReview || busy(), symbol: 'arrow' })}</div></div>`;
 }
 function transfer() {
   return `<div class="transfer"><section class="privacy-card"><h3>${icon('cloud')}${t('leaves')}</h3><ul>${['leaves1', 'leaves2', 'leaves3', 'leaves4'].map(key => `<li>${t(key)}</li>`).join('')}</ul><p>${t('transferNote')}</p></section><section class="privacy-card"><h3>${icon('lock')}${t('stays')}</h3><ul>${['stays1', 'stays2', 'stays3'].map(key => `<li>${t(key)}</li>`).join('')}</ul><p>${t('privacyFooter')}</p></section></div>
   <details class="payload-preview"><summary>${t('cloudPayload')}</summary><pre>${esc(JSON.stringify(createCloudPayload(state.synthetic), null, 2))}</pre></details>
-  ${!config.demo ? `<div class="cloud-consent"><label class="confirm"><input id="cloud-approval" type="checkbox" ${state.cloudApproved ? 'checked' : ''} ${busy() ? 'disabled' : ''}>${t('cloudConsent')}</label>${btn('draft', draftLanguageMismatch() ? 'regenerateDraft' : 'generateDraft', { disabled: !state.cloudApproved || busy() })}</div>` : ''}`;
+  ${!config.demo ? `<div class="cloud-consent"><label class="confirm"><input id="cloud-approval" type="checkbox" ${state.cloudApproved ? 'checked' : ''} ${busy() ? 'disabled' : ''}>${t('cloudConsent')}</label>${btn('draft', draftLanguageMismatch() ? 'regenerateDraft' : 'generateDraft', { primary: !state.report || draftLanguageMismatch(), disabled: !state.cloudApproved || busy(), symbol: 'cloud' })}</div>` : ''}`;
 }
 function reviewActions() {
   const allowed = state.approved && matched() && state.report && !busy();
-  return `<div class="action-bar review-actions"><div><label class="confirm"><input id="approval" type="checkbox" ${state.approved ? 'checked' : ''} ${!state.report || busy() ? 'disabled' : ''}>${t('approval')}</label><p class="small">${t('transferNote')}</p></div><div class="action-buttons">${btn('back', 'back', { disabled: busy() })}${btn('preview', 'preview', { disabled: !allowed })}${btn('export', 'export', { disabled: !allowed, primary: true, symbol: 'file' })}</div></div><div class="save-row"><p class="small">${config.demo ? t('demoSettings') : t('authHelp')}</p>${!config.demo && !state.signedIn ? btn('sign-in', 'signIn', { disabled: busy() }) : ''}${btn('save', 'save', { disabled: !allowed || (!config.demo && !state.signedIn), symbol: 'cloud' })}</div>`;
+  return `<div class="action-bar review-actions"><div><label class="confirm"><input id="approval" type="checkbox" ${state.approved ? 'checked' : ''} ${!state.report || busy() ? 'disabled' : ''}>${t('approval')}</label><p class="small">${t('transferNote')}</p></div><div class="action-buttons">${btn('back', 'back', { disabled: busy() })}${btn('preview', 'preview', { disabled: !allowed })}${btn('export', 'export', { disabled: !allowed, primary: true, symbol: 'file' })}</div></div>
+  <section class="optional-save"><div><h3>${t('optional')}</h3><p class="small">${config.demo ? t('demoSettings') : t('authHelp')}</p></div><div class="action-buttons">${!config.demo && !state.signedIn ? btn('sign-in', 'signIn', { disabled: busy() }) : ''}${btn('save', 'save', { disabled: !allowed || (!config.demo && !state.signedIn), symbol: 'cloud' })}</div></section>`;
 }
 export function render() {
   document.documentElement.lang = state.lang;
@@ -97,8 +104,9 @@ export function render() {
   ${state.lang === 'ja' ? `<aside class="guide">${t('guide')}</aside>` : ''}
   <main class="shell"><div class="page-heading"><div><div class="eyebrow">${review ? 'REVIEW / HANDOFF' : t('step')}</div><h1 tabindex="-1">${t(review ? 'reviewHeadline' : 'headline')}</h1><p class="subheading">${t(review ? 'reviewSubheading' : 'subheading')}</p></div></div>
   <div class="environment"><div class="boundary"><span>${icon('laptop')}<strong>LOCAL</strong> · ${t('localBoundary')}</span><span>${icon('cloud')}<strong>CLOUD</strong> · ${t('cloudBoundary')}</span></div></div>
-  ${state.notice || state.work ? `<div class="toast ${['tooLarge', 'readError', 'cloudError'].includes(state.notice) ? 'error' : ''}" role="status">${esc(t(state.work || state.notice))}</div>` : ''}
-  <div class="workspace ${review ? 'review-grid' : ''}"><div class="side-stack">${originalPanel()}${review ? validationPanel() : candidatesPanel()}</div>${fingerprintPanel()}<div class="side-stack">${syntheticPanel()}${review ? '' : generatorPanel()}</div></div>${review ? transfer() + reviewActions() : actions()}</main><footer class="footer"><span>${icon('lock')}${t('privacyFooter')}</span><span>${t('scopeFooter')}</span><a href="/THIRD_PARTY_NOTICES.txt">Third-party notices</a></footer>`;
+  ${state.work || (state.notice && !['sameFailure', 'mismatchDetail'].includes(state.notice)) ? `<div class="toast ${['tooLarge', 'readError', 'cloudError'].includes(state.notice) ? 'error' : ''}" role="status">${esc(t(state.work || state.notice))}</div>` : ''}
+  <div class="workspace ${review ? 'review-grid' : 'evidence-grid'}"><div class="side-stack">${originalPanel()}${review ? validationPanel() : candidatesPanel()}</div>${review ? fingerprintPanel() : `<div class="evidence-center">${fingerprintPanel()}${actions()}</div>`}<div class="side-stack">${syntheticPanel()}${review ? '' : generatorPanel()}</div></div>${review ? transfer() + reviewActions() : ''}</main><footer class="footer"><span>${icon('lock')}${t('privacyFooter')}</span><span>${t('scopeFooter')}</span><a href="/THIRD_PARTY_NOTICES.txt">Third-party notices</a></footer>`;
+  if (review && state.report) renderReportText(document.querySelector('.report-text'), state.report.text);
 }
 function refresh() {
   render();

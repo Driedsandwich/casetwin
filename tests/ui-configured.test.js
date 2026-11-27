@@ -37,7 +37,7 @@ test('Cloud draft regeneration requires fresh consent, preserves fictional row l
     prompts.push({ prompt, mode });
     if (prompts.length === 1) {
       return new Promise(resolve => {
-        finishFirstDraft = () => resolve(respond('English draft', 'in_cloud'));
+        finishFirstDraft = () => resolve(respond('### English draft', 'in_cloud'));
         firstDraftStarted();
       });
     }
@@ -68,6 +68,9 @@ test('Cloud draft regeneration requires fresh consent, preserves fictional row l
     await action('review');
     assert.equal(state.report, null);
     assert.equal(draftButton().disabled, true);
+    assert.equal(draftButton().closest('.cloud-consent').querySelector('#cloud-approval').checked, false);
+    assert.equal(document.querySelector('.optional-save h3').textContent, 'Optional');
+    assert.equal(document.querySelectorAll('.optional-save [data-action="sign-in"], .optional-save [data-action="save"]').length, 2);
     await action('draft');
     assert.equal(prompts.length, 0);
 
@@ -79,7 +82,8 @@ test('Cloud draft regeneration requires fresh consent, preserves fictional row l
     finishFirstDraft();
     await pending;
     assert.equal(state.report.language, 'en');
-    assert.equal(document.querySelector('.report-text').textContent, 'English draft');
+    assert.equal(document.querySelector('.report-text h4').textContent, 'English draft');
+    assert.equal(document.querySelector('.report-source.cloud').textContent, '実際の推論場所: in_cloud');
     assert.match(document.querySelector('.report').textContent, /この下書きは英語で作られました/);
     assert.match(draftButton().textContent, /日本語で作り直す/);
     assert.equal(draftButton().disabled, true);
@@ -89,6 +93,7 @@ test('Cloud draft regeneration requires fresh consent, preserves fictional row l
     await action('rewrite');
     assert.match(prompts[1].prompt, /in plain English\./);
     assert.equal(state.report.language, 'en');
+    assert.equal(document.querySelector('.report-source.device').textContent, '実際の推論場所: on_device');
     change('#approval', 'checked', true);
     change('#cloud-approval', 'checked', true);
     await action('draft');
