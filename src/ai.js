@@ -3,6 +3,8 @@ import { candidateConditions, candidateConfidences, LocalInferenceError, policyF
 import { createCloudPayload, demoReport } from './sharing.js';
 import { firebaseApp } from './firebase.js';
 const serializeLocal = serialQueue();
+const cloudDraftLimit = 3;
+const cloudDraftCountKey = 'casetwin:cloud-draft-count';
 const deviceCreateOptions = {
   expectedInputs: [{ type: 'text', languages: ['en', 'ja'] }],
   expectedOutputs: [{ type: 'text', languages: ['en', 'ja'] }]
@@ -52,6 +54,7 @@ function provenance(response, feature) {
 }
 export function createInferenceRunner({ settings = config, environment = globalThis, loadSDK = () => import('firebase/ai'), getApp = firebaseApp } = {}) {
   const models = new Map();
+  let draftCount = 0;
   return async function execute(feature, prompt, progress, signal) {
     signal?.throwIfAborted();
     const policy = policyFor(feature);
@@ -61,6 +64,18 @@ export function createInferenceRunner({ settings = config, environment = globalT
       if (!['available', 'downloadable', 'downloading'].includes(availability)) throw new LocalInferenceError('unavailable');
     }
     if (settings.demo && feature !== 'candidates') throw new Error('DEMO_CLOUD_DISABLED');
+    if (feature === 'draft') {
+      // Keep the limit across reloads when session storage is available.
+      let storage;
+      try {
+        storage = environment.window?.sessionStorage;
+        draftCount = Math.max(draftCount, Number(storage?.getItem(cloudDraftCountKey)) || 0);
+      } catch { /* Use the in-memory count if storage is blocked. */ }
+      if (draftCount >= cloudDraftLimit) throw new Error('CLOUD_DRAFT_LIMIT');
+      draftCount++;
+      try { storage?.setItem(cloudDraftCountKey, String(draftCount)); }
+      catch { /* The current page still retains the count. */ }
+    }
     const sdk = await loadSDK();
     signal?.throwIfAborted();
     if (!models.has(feature)) {

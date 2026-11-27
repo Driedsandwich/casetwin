@@ -137,6 +137,36 @@ test('Inference runner initializes through Firebase and verifies the actual resp
   assert.equal(calls[0][1], calls.find(([key]) => key === 'model')[1].onDeviceParams.createOptions);
   assert.equal(calls.filter(([key]) => key === 'initialize').length, 1);
 });
+test('Cloud draft attempts survive runner recreation and the fourth stops before loading Firebase AI', async () => {
+  const { createInferenceRunner } = await import('../src/ai.js');
+  const stored = new Map();
+  const environment = { window: { sessionStorage: {
+    getItem: key => stored.get(key) ?? null,
+    setItem: (key, value) => stored.set(key, value)
+  } } };
+  let sdkLoads = 0;
+  let generations = 0;
+  const options = {
+    settings: { demo: false, cloudModel: 'test' }, environment, getApp: async () => 'test',
+    loadSDK: async () => {
+      sdkLoads++;
+      return { InferenceMode, GoogleAIBackend: class {}, getAI: () => 'test', getGenerativeModel: () => ({
+        generateContent: async () => {
+          if (++generations === 1) throw new Error('TEST_FAILED_GENERATION');
+          return { response: { text: () => 'answer', inferenceSource: 'in_cloud' } };
+        }
+      }) };
+    }
+  };
+  const run = createInferenceRunner(options);
+  await assert.rejects(run('draft', 'test'), /TEST_FAILED_GENERATION/);
+  await run('draft', 'test');
+  const reloaded = createInferenceRunner(options);
+  await reloaded('draft', 'test');
+  await assert.rejects(reloaded('draft', 'test'), /CLOUD_DRAFT_LIMIT/);
+  assert.equal(sdkLoads, 3);
+  assert.equal(generations, 3);
+});
 test('Inference runner refuses missing device before loading SDK and rejects incorrect provenance', async () => {
   const { createInferenceRunner } = await import('../src/ai.js');
   let loaded = false;

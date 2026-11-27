@@ -35,7 +35,8 @@ export async function saveBundle(bundle) {
   const user = getAuth(app).currentUser;
   if (!user) throw new Error('SIGN_IN_REQUIRED');
   // Firestore Lite avoids persistent caches and listeners. Only share bundles reach this function.
-  const { getFirestore, collection, addDoc, serverTimestamp } = await import('firebase/firestore/lite');
-  const doc = await addDoc(collection(getFirestore(app), 'users', user.uid, 'bundles'), { ...safe, ownerId: user.uid, createdAt: serverTimestamp() });
-  return { simulated: false, id: doc.id };
+  const { getFirestore, doc, setDoc, serverTimestamp } = await import('firebase/firestore/lite');
+  const latest = doc(getFirestore(app), 'users', user.uid, 'bundles', 'latest');
+  await setDoc(latest, { ...safe, ownerId: user.uid, createdAt: serverTimestamp() });
+  return { simulated: false, id: latest.id };
 }

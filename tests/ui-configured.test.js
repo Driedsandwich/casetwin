@@ -4,7 +4,7 @@ import { registerHooks } from 'node:module';
 import { JSDOM } from 'jsdom';
 import { createCloudPayload } from '../src/sharing.js';
 
-const dom = new JSDOM('<!doctype html><div id="app"></div><div id="announcement"></div><dialog id="settings-dialog"></dialog><dialog id="bundle-dialog"></dialog>');
+const dom = new JSDOM('<!doctype html><div id="app"></div><div id="announcement"></div><dialog id="settings-dialog"></dialog><dialog id="bundle-dialog"></dialog>', { url: 'https://casetwin.test/' });
 globalThis.window = dom.window;
 globalThis.document = dom.window.document;
 globalThis.CASETWIN_CONFIG = Object.fromEntries(['apiKey', 'authDomain', 'projectId', 'appId', 'appCheckSiteKey', 'cloudModel'].map(key => [key, 'test']));
@@ -26,7 +26,7 @@ test('Configured mode omits the demo notice in English and Japanese', async () =
   assert.match(document.querySelector('.guide').textContent, /試作の案内/);
 });
 
-test('Cloud draft regeneration requires fresh consent and sends the same fictional row labels in both languages', async t => {
+test('Cloud draft regeneration requires fresh consent, preserves fictional row labels, and blocks the fourth draft', async t => {
   const fetch = t.mock.method(globalThis, 'fetch', () => assert.fail('Unexpected network request'));
   const prompts = [];
   let finishFirstDraft;
@@ -123,6 +123,19 @@ test('Cloud draft regeneration requires fresh consent and sends the same fiction
       assert.doesNotMatch(prompt, /private-file\.csv|Private (One|Two|Three|Four)|Row 4|Short English draft/);
     }
     assert.deepEqual(preview, createCloudPayload(state.synthetic));
+    const thirdDraft = state.report;
+    for (const [language, message] of [
+      ['en', 'In this demo, a cloud draft can be generated up to 3 times per tab.'],
+      ['ja', 'このデモで雲の下書きを作れるのは 1 つのタブで 3 回までです。']
+    ]) {
+      await action(language);
+      change('#cloud-approval', 'checked', true);
+      await action('draft');
+      assert.equal(prompts.length, 4); // Three cloud drafts and one rewrite.
+      assert.equal(document.querySelector('.toast').textContent, message);
+      assert.equal(document.getElementById('announcement').textContent, message);
+      assert.equal(state.report, thirdDraft);
+    }
     assert.equal(fetch.mock.callCount(), 0);
   } finally {
     hooks.deregister();

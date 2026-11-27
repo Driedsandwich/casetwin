@@ -186,7 +186,7 @@ export async function action(name) {
       const { draftReport, rewriteReport } = await import('./ai.js');
       const report = drafting ? await draftReport(state.synthetic, language) : await rewriteReport(state.report, language);
       if (token === revision) { state.report = report; state.notice = 'draftChanged'; }
-    } catch { state.notice = 'cloudError'; }
+    } catch (error) { state.notice = drafting && error?.message === 'CLOUD_DRAFT_LIMIT' ? 'cloudDraftLimit' : 'cloudError'; }
     finally { state.work = ''; }
   } else if (name === 'preview') { if (!state.approved || !matched()) return; showPreview(); return;
   } else if (name === 'export') {
