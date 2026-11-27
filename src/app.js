@@ -2,10 +2,10 @@ import C from './core.js';
 import { config } from './config.js';
 import { translate } from './i18n.js';
 import { candidateOutcome, localSummary } from './inference-policy.js';
-import { createShareBundle, createCloudPayload, demoReport } from './sharing.js';
+import { createShareBundle, createCloudPayload, demoReport, syntheticRowLabel } from './sharing.js';
 
 const sample = C.makeSample();
-export const state = { lang: 'en', source: sample, filename: 'fictional-demo.csv', original: C.validate(sample), synthetic: null, syntheticReport: null, condition: '', view: 'main', approved: false, cloudApproved: false, report: null, candidates: [], aiStatus: 'idle', inferenceSource: null, progress: null, notice: '', work: '', signedIn: false };
+export const state = { lang: 'en', source: sample, filename: 'fictional-demo.csv', original: C.validate(sample), synthetic: null, syntheticReport: null, condition: '', view: 'main', approved: false, cloudApproved: false, report: null, candidates: [], aiStatus: 'idle', aiReason: null, inferenceSource: null, progress: null, notice: '', work: '', signedIn: false };
 let revision = 0, aiRevision = 0, fileRevision = 0;
 let firstLocalCall = true;
 const t = key => translate(state.lang, key);
@@ -14,6 +14,7 @@ const icon = name => `<svg class="icon" aria-hidden="true"><use href="#i-${name}
 const btn = (action, key, { primary = false, disabled = false, symbol = '' } = {}) => `<button type="button" data-action="${action}" ${primary ? 'class="primary"' : ''} ${disabled ? 'disabled' : ''}>${symbol ? icon(symbol) : ''}${esc(t(key))}</button>`;
 export const matched = () => C.fingerprintsMatch(state.original, state.syntheticReport);
 const busy = () => Boolean(state.work);
+const draftLanguageMismatch = () => state.report && state.report.language !== state.lang;
 const inferenceLabel = report => report?.simulated ? t('simulated') : `${t('source')}: ${report?.inferenceSource || t('noneSource')}`;
 function status(report) {
   if (!report) return '';
@@ -36,7 +37,8 @@ function conditionPicker() {
 }
 function candidatesPanel() {
   const pending = ['preparing', 'analyzing'].includes(state.aiStatus);
-  const info = pending ? t(state.aiStatus) : state.aiStatus === 'manual' ? t('unavailable') : t('candidateHelp');
+  let info = pending ? t(state.aiStatus) : t('candidateHelp');
+  if (state.aiStatus === 'manual') info = state.aiReason ? `${t(state.aiReason)} ${t('manualNote')}` : t('manualNote');
   return `<section class="panel candidates"><div class="title-row">${icon('spark')}<h3>${t('localCandidates')}</h3></div>
   <span class="badge">ONLY_ON_DEVICE</span><p class="small" role="status">${info}${pending && state.progress !== null ? ` (${state.progress}%)` : ''}</p>
   ${state.candidates.length ? `<ul class="candidate-list">${state.candidates.map(item => `<li class="${item.confidence === 'likely' ? 'chosen' : ''}">${icon(item.confidence === 'likely' ? 'check' : 'code')}<span>${t(item.condition)} · ${t(item.confidence)}</span></li>`).join('')}</ul>` : ''}
@@ -48,7 +50,9 @@ function validationPanel() {
 }
 function matchCard(privateData) {
   const report = privateData ? state.original : state.syntheticReport;
-  return `<div class="match-card"><span class="small">${t(privateData ? 'originalMatch' : 'syntheticMatch')}</span><strong>${report ? report.row ? `${t('row')} ${report.row}` : t('wholeFile') : t('awaiting')}</strong>${report ? `<span class="badge ${report.ok ? 'pass' : 'fail'}">${report.ok ? 'PASS' : 'FAIL'}</span><br><code>${esc(report.fingerprint?.kind || '—')}</code>` : ''}${state.view === 'review' ? `<dl class="details"><div><dt>CSV</dt><dd>${esc(privateData ? state.filename : 'repro-synthetic.csv')}</dd></div><div><dt>${t('validator')}</dt><dd>r17</dd></div></dl>` : ''}</div>`;
+  let label = t('awaiting');
+  if (report) label = report.row ? privateData ? `${t('row')} ${report.row}` : syntheticRowLabel(report.row) : t('wholeFile');
+  return `<div class="match-card"><span class="small">${t(privateData ? 'originalMatch' : 'syntheticMatch')}</span><strong>${esc(label)}</strong>${report ? `<span class="badge ${report.ok ? 'pass' : 'fail'}">${report.ok ? 'PASS' : 'FAIL'}</span><br><code>${esc(report.fingerprint?.kind || '—')}</code>` : ''}${state.view === 'review' ? `<dl class="details"><div><dt>CSV</dt><dd>${esc(privateData ? state.filename : 'repro-synthetic.csv')}</dd></div><div><dt>${t('validator')}</dt><dd>r17</dd></div></dl>` : ''}</div>`;
 }
 function fingerprintPanel() {
   const fp = state.original?.fingerprint;
@@ -58,8 +62,11 @@ function fingerprintPanel() {
   <div class="result ${state.synthetic ? matched() ? 'success' : 'failure' : ''}" role="status"><strong>${icon(state.synthetic ? matched() ? 'check' : 'alert' : 'shield')}${t(state.synthetic ? matched() ? 'sameFailure' : 'differentFailure' : 'compare')}</strong><p>${t(state.synthetic ? matched() ? 'matchDetail' : 'mismatchDetail' : 'waitingDetail')}</p></div><p class="finger-caption">${t('caption')}</p></div></section>`;
 }
 function reportPanel() {
+  const languageNotice = draftLanguageMismatch()
+    ? `<p class="note">${t(state.report.language === 'ja' ? 'draftInJapanese' : 'draftInEnglish')}</p>${config.demo ? btn('draft', 'regenerateDraft', { disabled: busy() }) : ''}`
+    : '';
   return `<section class="report"><div class="title-row">${icon('cloud')}<h3>${t('draft')}</h3></div><span class="badge">${t('draftBadge')}</span>
-  ${state.report ? `<p class="source-label">${esc(inferenceLabel(state.report))}</p><div class="report-text">${esc(state.report.text)}</div><p class="hypothesis">${t('hypothesis')}</p><p class="small">${t('rewriteNote')}</p>${btn('rewrite', 'rewrite', { disabled: busy(), symbol: 'spark' })}` : `<p class="note">${t('cloudPending')}</p>`}</section>`;
+  ${state.report ? `<p class="source-label">${esc(inferenceLabel(state.report))}</p>${languageNotice}<div class="report-text" lang="${esc(state.report.language)}">${esc(state.report.text)}</div><p class="hypothesis">${t('hypothesis')}</p><p class="small">${t('rewriteNote')}</p>${btn('rewrite', 'rewrite', { disabled: busy(), symbol: 'spark' })}` : `<p class="note">${t('cloudPending')}</p>`}</section>`;
 }
 function syntheticPanel() {
   return `<section class="panel panel-pad"><div class="panel-head">${icon('file')}<div><h2>${t('synthetic')}</h2><span class="badge">${t('shareable')}</span></div></div>
@@ -75,7 +82,7 @@ function actions() {
 function transfer() {
   return `<div class="transfer"><section class="privacy-card"><h3>${icon('cloud')}${t('leaves')}</h3><ul>${['leaves1', 'leaves2', 'leaves3', 'leaves4'].map(key => `<li>${t(key)}</li>`).join('')}</ul><p>${t('transferNote')}</p></section><section class="privacy-card"><h3>${icon('lock')}${t('stays')}</h3><ul>${['stays1', 'stays2', 'stays3'].map(key => `<li>${t(key)}</li>`).join('')}</ul><p>${t('privacyFooter')}</p></section></div>
   <details class="payload-preview"><summary>${t('cloudPayload')}</summary><pre>${esc(JSON.stringify(createCloudPayload(state.synthetic), null, 2))}</pre></details>
-  ${!config.demo ? `<div class="cloud-consent"><label class="confirm"><input id="cloud-approval" type="checkbox" ${state.cloudApproved ? 'checked' : ''} ${busy() ? 'disabled' : ''}>${t('cloudConsent')}</label>${btn('draft', 'generateDraft', { disabled: !state.cloudApproved || busy() })}</div>` : ''}`;
+  ${!config.demo ? `<div class="cloud-consent"><label class="confirm"><input id="cloud-approval" type="checkbox" ${state.cloudApproved ? 'checked' : ''} ${busy() ? 'disabled' : ''}>${t('cloudConsent')}</label>${btn('draft', draftLanguageMismatch() ? 'regenerateDraft' : 'generateDraft', { disabled: !state.cloudApproved || busy() })}</div>` : ''}`;
 }
 function reviewActions() {
   const allowed = state.approved && matched() && state.report && !busy();
@@ -105,7 +112,7 @@ function invalidate() {
 function resetSource() {
   invalidate(); aiRevision++;
   state.source = null; state.original = null; state.filename = ''; state.condition = '';
-  state.candidates = []; state.aiStatus = 'idle'; state.inferenceSource = null; state.progress = null;
+  state.candidates = []; state.aiStatus = 'idle'; state.aiReason = null; state.inferenceSource = null; state.progress = null;
 }
 function approvedBundle() {
   if (state.view !== 'review' || !state.report) throw new Error('HANDOFF_NOT_APPROVED');
@@ -127,29 +134,31 @@ function showPreview() {
 export async function action(name) {
   if (name === 'settings') { openSettings(); return; }
   if (name === 'close-settings' || name === 'close-bundle') { document.getElementById(name === 'close-settings' ? 'settings-dialog' : 'bundle-dialog').close(); return; }
-  if (name === 'en' || name === 'ja') { state.lang = name; refresh(); return; }
+  if (name === 'en' || name === 'ja') {
+    if (name !== state.lang) state.cloudApproved = false;
+    state.lang = name; refresh(); return;
+  }
   if (busy()) return;
   if (name === 'sample') {
     fileRevision++; resetSource(); state.source = C.makeSample(); state.filename = 'fictional-demo.csv'; state.original = C.validate(state.source); state.notice = 'loaded';
   } else if (name === 'manual') {
-    aiRevision++; state.aiStatus = 'manual'; state.candidates = []; state.inferenceSource = null; state.notice = 'manualNote';
+    aiRevision++; state.aiStatus = 'manual'; state.aiReason = null; state.candidates = []; state.inferenceSource = null; state.notice = '';
   } else if (name === 'analyze') {
     if (!state.source || ['preparing', 'analyzing'].includes(state.aiStatus)) return;
     const token = ++aiRevision;
-    state.aiStatus = firstLocalCall ? 'preparing' : 'analyzing'; state.progress = null; refresh();
+    state.aiStatus = firstLocalCall ? 'preparing' : 'analyzing'; state.aiReason = null; state.progress = null; refresh();
     const summary = localSummary(state.source, state.original);
-    let outcome;
-    try {
+    const outcome = await candidateOutcome(async (_feature, input, signal) => {
       const { inferCandidates } = await import('./ai.js');
-      outcome = await candidateOutcome((feature, input) => inferCandidates(input, progress => {
-        if (token === aiRevision) { state.progress = Math.round(progress * 100); render(); }
-      }), summary);
-    } catch { outcome = { status: 'manual', candidates: [], inferenceSource: null }; }
+      return inferCandidates(input, progress => {
+        if (token === aiRevision && !signal.aborted) { state.progress = Math.round(progress * 100); render(); }
+      }, signal);
+    }, summary);
     if (token !== aiRevision) return;
     firstLocalCall = outcome.status !== 'ready';
-    state.aiStatus = outcome.status; state.candidates = outcome.candidates; state.inferenceSource = outcome.inferenceSource;
+    state.aiStatus = outcome.status; state.aiReason = outcome.reason ?? null; state.candidates = outcome.candidates; state.inferenceSource = outcome.inferenceSource;
     if (outcome.status === 'ready') { invalidate(); state.condition = outcome.candidates[0].condition; }
-    state.notice = outcome.status === 'ready' ? 'ready' : 'unavailable';
+    state.notice = outcome.status === 'ready' ? 'ready' : '';
   } else if (name === 'generate') {
     if (!state.source || !state.condition) return;
     aiRevision++; if (['preparing', 'analyzing'].includes(state.aiStatus)) state.aiStatus = 'manual';
@@ -160,16 +169,22 @@ export async function action(name) {
   } else if (name === 'review') {
     if (!matched()) return;
     state.view = 'review'; state.approved = false; state.cloudApproved = false; state.notice = '';
-    if (config.demo) state.report = demoReport(state.synthetic, state.lang);
+    if (config.demo && !state.report) state.report = demoReport(state.synthetic, state.lang);
   } else if (name === 'back') {
     state.view = 'main'; state.approved = false; state.cloudApproved = false; state.notice = '';
   } else if (name === 'draft' || name === 'rewrite') {
-    if (!matched() || state.view !== 'review' || (name === 'draft' && !state.cloudApproved) || (name === 'rewrite' && !state.report)) return;
+    const drafting = name === 'draft';
+    if (!matched() || state.view !== 'review') return;
+    if (drafting) {
+      if (config.demo ? !draftLanguageMismatch() : !state.cloudApproved) return;
+      state.cloudApproved = false;
+    } else if (!state.report) return;
+    const language = drafting ? state.lang : state.report.language;
     const token = revision;
-    state.work = name === 'draft' ? 'cloudBusy' : 'rewriteBusy'; state.approved = false; refresh();
+    state.work = drafting ? 'cloudBusy' : 'rewriteBusy'; state.approved = false; refresh();
     try {
       const { draftReport, rewriteReport } = await import('./ai.js');
-      const report = name === 'draft' ? await draftReport(state.synthetic, state.lang) : await rewriteReport(state.report, state.lang);
+      const report = drafting ? await draftReport(state.synthetic, language) : await rewriteReport(state.report, language);
       if (token === revision) { state.report = report; state.notice = 'draftChanged'; }
     } catch { state.notice = 'cloudError'; }
     finally { state.work = ''; }

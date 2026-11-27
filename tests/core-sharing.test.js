@@ -44,6 +44,9 @@ test('All four errors produce matching validated cloud payloads', () => {
     assert.equal(C.fingerprintsMatch(C.validate(source), C.validate(repro.data)), true);
     const payload = createCloudPayload(repro);
     assert.deepEqual(syntheticFromFile(payload.synthetic).data, repro.data);
+    assert.deepEqual(payload.syntheticRows.labels, ['Row 1', 'Row 2', 'Row 3']);
+    assert.equal(payload.syntheticRows.failureRow, { duplicate: 'Row 3', newline: 'Row 2' }[condition] ?? null);
+    assert.deepEqual(payload.syntheticRows.relatedRows, condition === 'duplicate' ? ['Row 2', 'Row 3'] : []);
   }
 });
 test('Each signature dimension and validator version is required', () => {
@@ -60,7 +63,7 @@ test('Cloud payload allowlist excludes original values and original metadata', (
   source.filename = 'customer-secret.csv';
   source.originalRowNumbers = [42, 43];
   const payload = createCloudPayload(C.generateSynthetic(source, 'duplicate'));
-  assert.deepEqual(Object.keys(payload).sort(), ['fingerprint', 'importerCode', 'synthetic']);
+  assert.deepEqual(Object.keys(payload).sort(), ['fingerprint', 'importerCode', 'synthetic', 'syntheticRows']);
   const text = JSON.stringify(payload);
   for (const privateValue of [...source.rows.flat(), source.filename, 'originalRowNumbers']) assert.ok(!text.includes(privateValue));
   assert.equal(payload.fingerprint.version, 'r17');
@@ -82,6 +85,8 @@ test('Approved bundle strips original report row numbers and rejects extra field
   const text = JSON.stringify(bundle);
   for (const sentinel of ['private.csv', 'rawLogs', '98765', 'DEMO-FICTION', 'Fictional customer']) assert.ok(!text.includes(sentinel));
   assert.ok(!JSON.stringify(bundle.validation).includes('relatedRows'));
+  assert.equal(bundle.syntheticRows, undefined);
+  assert.equal(bundle.report.language, undefined);
   assert.throws(() => validateShareBundle({ ...bundle, originalCSV: 'private' }));
   const nested = copy(bundle); nested.validation.original.row = 42;
   assert.throws(() => validateShareBundle(nested));

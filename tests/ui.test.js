@@ -58,12 +58,16 @@ test('Condition changes revoke approval and mismatches block review', async () =
 test('Missing local AI returns to manual selection with no fabricated source', async () => {
   await action('sample'); await action('analyze');
   assert.equal(state.aiStatus, 'manual');
+  assert.equal(state.aiReason, 'unavailable');
   assert.equal(state.inferenceSource, null);
+  assert.match(document.querySelector('.candidates [role="status"]').textContent, /On-device AI is unavailable\. Choose a condition below\./);
   assert.ok(document.getElementById('condition'));
 });
 test('Locale switch preserves data and only Japanese gets prototype guidance', async () => {
   const source = state.source;
   await action('ja'); assert.equal(document.documentElement.lang, 'ja'); assert.ok(document.querySelector('.guide'));
+  assert.match(document.querySelector('.demo-banner').textContent, /雲の処理は見本です/);
+  assert.match(document.querySelector('.candidates [role="status"]').textContent, /端末の AI を利用できません。\s*下から条件を選んでください。/);
   assert.equal(state.source, source);
   for (const heading of document.querySelectorAll('h1,h2,h3,title')) assert.doesNotMatch(heading.textContent, /[,、]/);
   await action('en'); assert.equal(document.querySelector('.guide'), null);
@@ -93,4 +97,18 @@ test('Demo rewrite and save remain explicit simulations and rewrite revokes appr
   change('approval', undefined, true); await action('save');
   assert.equal(state.notice, 'demoSaved');
   render();
+});
+test('Demo draft regeneration follows the selected language without cloud consent', async () => {
+  await action('en');
+  await action('sample'); change('condition', 'duplicate'); await action('generate'); await action('review');
+  assert.equal(state.report.language, 'en');
+  await action('ja');
+  assert.match(document.querySelector('.report').textContent, /この下書きは英語で作られました/);
+  assert.equal(document.querySelector('#cloud-approval'), null);
+  assert.equal(document.querySelector('[data-action="draft"]').disabled, false);
+  await action('draft');
+  assert.equal(state.report.language, 'ja');
+  assert.equal(state.report.simulated, true);
+  assert.equal(document.querySelector('.report-text').lang, 'ja');
+  assert.equal(document.querySelector('[data-action="draft"]'), null);
 });

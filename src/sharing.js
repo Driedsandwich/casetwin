@@ -52,6 +52,8 @@ export function syntheticFromFile(file) {
   return { data, bytes, csv: data.text, condition: match.condition };
 }
 
+export const syntheticRowLabel = row => `Row ${row}`;
+
 // The ONLY factory for cloud model input. It accepts synthetic data, never original metadata.
 export function createCloudPayload(synthetic) {
   const file = csvFile(synthetic);
@@ -59,17 +61,22 @@ export function createCloudPayload(synthetic) {
   const report = C.validate(checked.data);
   const fingerprint = { ...report.fingerprint, version: report.version };
   checkFingerprint(fingerprint);
-  return { synthetic: file, importerCode: C.importerCode(), fingerprint };
+  const syntheticRows = {
+    labels: checked.data.rows.map((_, index) => syntheticRowLabel(index + 1)),
+    failureRow: report.row ? syntheticRowLabel(report.row) : null,
+    relatedRows: report.relatedRows.map(syntheticRowLabel)
+  };
+  return { synthetic: file, importerCode: C.importerCode(), fingerprint, syntheticRows };
 }
 
 export function createShareBundle({ originalReport, synthetic, approved, report, createdAt = new Date().toISOString() }) {
   const syntheticReport = C.validate(synthetic.data);
   if (!approved || !C.fingerprintsMatch(originalReport, syntheticReport)) throw new Error('HANDOFF_NOT_APPROVED');
-  const payload = createCloudPayload(synthetic);
+  const { synthetic: file, importerCode, fingerprint } = createCloudPayload(synthetic);
   // Both reports are reconstructed from synthetic data because their safe signatures match.
   // No original object is spread into the outgoing data.
   const safe = C.safeReport(syntheticReport);
-  return validateShareBundle({ schemaVersion: 1, approved: true, ...payload,
+  return validateShareBundle({ schemaVersion: 1, approved: true, synthetic: file, importerCode, fingerprint,
     validation: { matched: true, original: clone(safe), synthetic: clone(safe) },
     report: { text: report.text, inferenceSource: report.inferenceSource, simulated: report.simulated }, createdAt });
 }
@@ -97,7 +104,7 @@ export function validateShareBundle(bundle) {
   if (typeof bundle.createdAt !== 'string' || !/^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d\.\d{3}Z$/.test(bundle.createdAt) || Number.isNaN(Date.parse(bundle.createdAt))) throw new Error('INVALID_TIMESTAMP');
   return clone(bundle);
 }
-export function demoReport(synthetic, lang = 'en') {
+export function demoReport(synthetic, language = 'en') {
   const kind = C.validate(synthetic.data).fingerprint.kind;
   const description = {
     DUPLICATE_KEY: ['Duplicate customer_id rejects CSV import', 'Detect duplicate keys before writes and confirm the intended duplicate policy.'],
@@ -105,10 +112,10 @@ export function demoReport(synthetic, lang = 'en') {
     MISSING_COLUMN: ['Missing required column rejects CSV import', 'Show the required column names before import.'],
     INVALID_ENCODING: ['Invalid UTF-8 rejects CSV import', 'Explain the UTF-8 requirement without silently replacing invalid bytes.']
   }[kind];
-  const text = lang === 'ja'
+  const text = language === 'ja'
     ? `下書き · 見本\n\n根拠: 架空の再現に対して検査 r17 が ${kind} を返しました。\n\n見立て: 該当する検査の拒否条件で取り込みが止まる可能性があります。\n\n直し方の案: 仕様を確認し書き込み前に検出して対象の列を説明します。\n\n回帰の確認: 架空の再現を修正後の検査に通します。実サービスの動作は未確認です。`
     : `DRAFT · ${description[0]}\n\nEvidence: The fictional reproduction returns ${kind} under validator r17.\n\nHypothesis: This validation rule may stop the import. Production service behavior is unverified.\n\nSuggested fix: ${description[1]}\n\nRegression check: Run the synthetic CSV against the patch and check the intended policy and absence of partial writes.`;
-  return { text, inferenceSource: null, simulated: true };
+  return { text, inferenceSource: null, simulated: true, language };
 }
 export function demoBundle() {
   const original = C.makeSample();

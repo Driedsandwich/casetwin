@@ -38,19 +38,63 @@ export function serialQueue() {
     return current;
   };
 }
-export async function candidateOutcome(infer, summary) {
+export const candidateConditions = Object.freeze(['duplicate', 'newline', 'encoding', 'missing']);
+export const candidateConfidences = Object.freeze(['likely', 'possible', 'unlikely']);
+
+export class LocalInferenceError extends Error {
+  constructor(reason) {
+    super(reason);
+    this.reason = reason;
+  }
+}
+
+function firstJsonObject(text) {
+  // A JSON object starts with a quoted key or is empty. Skip quoted values when counting braces.
+  const tokens = /"(?:\\[\s\S]|[^"\\])*"|[{}]/g;
+  for (const { index: start } of text.matchAll(/\{(?=\s*["}])/g)) {
+    let depth = 1;
+    tokens.lastIndex = start + 1;
+    for (let token; (token = tokens.exec(text));) {
+      if (token[0] === '{') depth++;
+      else if (token[0] === '}') depth--;
+      if (depth === 0) {
+        try { return JSON.parse(text.slice(start, tokens.lastIndex)); }
+        catch { break; }
+      }
+    }
+  }
+}
+
+export async function candidateOutcome(infer, summary, timeoutMs = 60_000) {
+  const controller = new AbortController();
+  let timer;
   try {
-    const answer = await infer('candidates', summary);
-    if (answer.inferenceSource !== 'on_device') throw new Error('LOCAL_SOURCE_REQUIRED');
-    const parsed = JSON.parse(answer.text.trim().replace(/^```(?:json)?\s*|\s*```$/g, ''));
-    if (!Array.isArray(parsed.candidates) || !parsed.candidates.length) throw new Error('INVALID_CANDIDATES');
-    const candidates = parsed.candidates.slice(0, 4).map(item => {
-      if (!['duplicate', 'newline', 'encoding', 'missing'].includes(item.condition) || !['likely', 'possible', 'unlikely'].includes(item.confidence)) throw new Error('INVALID_CANDIDATES');
-      return { condition: item.condition, confidence: item.confidence };
+    const timeout = new Promise((_, reject) => {
+      timer = setTimeout(() => {
+        const error = new LocalInferenceError('timeout');
+        controller.abort(error);
+        reject(error);
+      }, timeoutMs);
     });
+    const answer = await Promise.race([infer('candidates', summary, controller.signal), timeout]);
+    if (answer?.inferenceSource !== 'on_device' || typeof answer.text !== 'string') throw new LocalInferenceError('invalid-answer');
+    const parsed = firstJsonObject(answer.text);
+    if (!Array.isArray(parsed?.candidates)) throw new LocalInferenceError('invalid-answer');
+    const candidates = [];
+    for (const item of parsed.candidates) {
+      const condition = typeof item?.condition === 'string' && item.condition.trim().toLowerCase();
+      const confidence = typeof item?.confidence === 'string' && item.confidence.trim().toLowerCase();
+      if (!candidateConditions.includes(condition) || !candidateConfidences.includes(confidence)) continue;
+      candidates.push({ condition, confidence });
+      if (candidates.length === candidateConditions.length) break;
+    }
+    if (!candidates.length) throw new LocalInferenceError('invalid-answer');
     return { status: 'ready', candidates, inferenceSource: answer.inferenceSource };
-  } catch {
+  } catch (error) {
     // No cloud retry path exists for private inputs. Error details may contain private data.
-    return { status: 'manual', candidates: [], inferenceSource: null };
+    const reason = error instanceof LocalInferenceError ? error.reason : error?.name === 'TimeoutError' ? 'timeout' : 'unavailable';
+    return { status: 'manual', reason, candidates: [], inferenceSource: null };
+  } finally {
+    clearTimeout(timer);
   }
 }
